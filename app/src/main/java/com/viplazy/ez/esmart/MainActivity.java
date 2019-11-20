@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -74,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
     public void ShowLognInResult(){
         if (mAuth != null) {
             //msg("Wellcome " + mAuth.getCurrentUser().getEmail());
+
         }
     }
     @Override
@@ -192,6 +192,12 @@ public class MainActivity extends AppCompatActivity {
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
+
+            //prevent from using without sign in
+            if (resultCode == 0) {
+                signIn();
+                return;
+            }
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
@@ -200,8 +206,11 @@ public class MainActivity extends AppCompatActivity {
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 // ...
+
             }
+
         }
+
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
@@ -223,5 +232,11 @@ public class MainActivity extends AppCompatActivity {
                         // ...
                     }
                 });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
     }
 }
