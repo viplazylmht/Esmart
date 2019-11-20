@@ -1,225 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/container"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="18dp"
-        android:layout_marginEnd="8dp"
-        android:text="EDUCATION POPUP APP"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <include android:layout_width="match_parent"
+        android:layout_height="wrap_content" layout="@layout/app_tool_bar"
+        android:id="@+id/app_tool_bar"/>
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
+    <View
+        android:id="@+id/divider"
+        android:layout_below="@id/app_tool_bar"
+
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_title">
+        android:layout_height="1dp"
+        android:background="#ffb33333"/>
 
-        <LinearLayout
-            android:id="@+id/container1"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="EVERYDAY"
-                android:textSize="25dp" />
-
-            <LinearLayout
-                android:layout_width="120dp"
-                android:layout_height="2dp"
-                android:background="#ff131313"></LinearLayout>
-
-            <TextView
-                android:id="@+id/tv_week_achev"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="2/8   CORRECT/TOTAL"
-                android:textSize="18dp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.github.lzyzsd.circleprogress.ArcProgress
-                android:id="@+id/arc_progress"
-                app:arc_text_size="25dp"
-                android:layout_marginLeft="50dp"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                app:arc_finished_color="#FFB33333"
-                app:arc_unfinished_color="#FF131313"
-                app:arc_progress="25"
-                app:arc_bottom_text=""/>
-        </LinearLayout>
-
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/container2"
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
+        android:layout_below="@id/divider"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="28dp"
-
-        android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="EVERY WEEK"
-                android:textSize="25dp" />
-
-            <LinearLayout
-                android:layout_width="150dp"
-                android:layout_height="2dp"
-                android:background="#ff131313"></LinearLayout>
-
-            <TextView
-                android:id="@+id/tv_today_achev"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="26/40   CORRECT/TOTAL"
-                android:textSize="18dp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        android:layout_height="48dp"
+        android:background="@color/tab_color"
+        app:tabTextColor="@android:color/tab_indicator_text"
+        app:tabSelectedTextColor="@color/tab_select">
 
 
-            <com.github.lzyzsd.circleprogress.ArcProgress
-                android:id="@+id/arc_progress1"
-                app:arc_text_size="25dp"
-                android:layout_marginLeft="50dp"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                app:arc_finished_color="#FFB33333"
-                app:arc_unfinished_color="#FF131313"
-                app:arc_progress="65"
-                app:arc_bottom_text=""/>
-        </LinearLayout>
+    </com.google.android.material.tabs.TabLayout>
 
 
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:id="@+id/container3"
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_below="@id/tab_layout"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="18dp"
-
-        android:layout_marginEnd="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/container2">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="EVERY MONTH"
-                android:textSize="25dp" />
-
-            <LinearLayout
-                android:layout_width="170dp"
-                android:layout_height="2dp"
-                android:background="#ff131313"></LinearLayout>
-
-            <TextView
-                android:id="@+id/tv_month_achev"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="70/200   CORRECT/TOTAL"
-                android:textSize="18dp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.github.lzyzsd.circleprogress.ArcProgress
-                android:id="@+id/arc_progress2"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginLeft="50dp"
-                app:arc_bottom_text=""
-                app:arc_finished_color="#FFB33333"
-                app:arc_progress="35"
-                app:arc_text_size="25dp"
-                app:arc_unfinished_color="#FF131313" />
-        </LinearLayout>
+        android:layout_height="match_parent"
+         />
 
 
-    </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/container4"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
 
-        android:layout_marginEnd="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/container3">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Correct percent: "
-            android:textSize="18dp" />
-        <TextView
-            android:id="@+id/tv_correct_percent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="23%"
-            android:textColor="#ff131313"
-            android:textSize="18sp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
-    </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>
