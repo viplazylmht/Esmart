@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "191634253474",
+    "firebase_url": "https://esmart-308b7.firebaseio.com",
+    "project_id": "esmart-308b7",
+    "storage_bucket": "esmart-308b7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191634253474:android:ace5f108a0e0953a6e99fb",
+        "android_client_info": {
+          "package_name": "com.viplazy.ez.esmart"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "191634253474-h9vf1qkecctt3ber4hqob29rnm5g8mvp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.viplazy.ez.esmart",
+            "certificate_hash": "d78d5119c1a4155851f048a93e77a2ef3fae6fff"
+          }
+        },
+        {
+          "client_id": "191634253474-1pq6klha1fvddhthfhhno6g6pm0ub8up.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.viplazy.ez.esmart",
+            "certificate_hash": "94fc4aded28fb75bbae7db0686a1c3f2c1d8455b"
+          }
+        },
+        {
+          "client_id": "191634253474-9nhk8mfmrkqq3g984hmlgkjmglo1ndlb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAMAg70Z7MYuvXAxg8kJOjkOmvZtZ-z6M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "191634253474-9nhk8mfmrkqq3g984hmlgkjmglo1ndlb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
