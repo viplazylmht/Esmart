@@ -5,17 +5,29 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.tabs.TabLayout;
 
 import static android.app.Notification.EXTRA_NOTIFICATION_ID;
 
@@ -27,18 +39,35 @@ public class MainActivity extends AppCompatActivity {
     private static final int HO_TRO = Menu.FIRST + 6;
     private static final String CHANNEL_ID = "PUSH NOTIFICATION";
 
-    com.github.lzyzsd.circleprogress.ArcProgress bar1, bar2, bar3;
+
+    public static int ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE = 5469;
+
+    RelativeLayout container;
+
+    private ViewPager pager;
+    private TabLayout tabLayout;
+
+    private Toolbar toolbar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
+
+        toolbar = findViewById(R.id.app_tool_bar);
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+
+        container = findViewById(R.id.container);
+
 
         createNotificationChannel();
 
-
-
-
+        addControl();
     }
 
     // fast way to call Toast
@@ -89,6 +118,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void pushPopup() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE);
+        }
+        else {
+
+            Intent serviceIntent = new Intent(this, PopupService.class);
+            startService(serviceIntent);
+        }
+
+
+    }
+    private Intent getPopupIntent() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE);
+
+            return null;
+        }
+        else {
+            return new Intent(this, PopupService.class);
+        }
     }
 
     private void pushNotify() {
@@ -103,18 +159,39 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent snoozePendingIntent =
                 PendingIntent.getActivity(this, 0, snoozeIntent, 0);
 
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.notification_icon)
-                .setContentTitle("Incoming notification")
-                .setContentText("This is a demo text that remind you to checkout ur achievements of last week")
-                .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText("This is a demo text that remind you to checkout ur achievements of last week"))
-                .setPriority(NotificationCompat.PRIORITY_MAX)
+        Intent popupIntent = getPopupIntent();
 
-                // Set the intent that will fire when the user taps the notification
-                .setContentIntent(pendingIntent)
-                .addAction(R.drawable.ic_launcher_foreground, "OPEN APP", snoozePendingIntent)
-                .setAutoCancel(true);
+        NotificationCompat.Builder mBuilder;
+
+        if (popupIntent == null) {
+            mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setSmallIcon(R.drawable.notification_icon)
+                    .setContentTitle("Incoming notification")
+                    .setContentText("This is a demo text that remind you to checkout ur achievements of last week")
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText("This is a demo text that remind you to checkout ur achievements of last week"))
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+
+                    // Set the intent that will fire when the user taps the notification
+                    .setContentIntent(pendingIntent)
+                    .addAction(R.drawable.ic_launcher_foreground, "OPEN APP", snoozePendingIntent)
+                    .setAutoCancel(true);
+        }
+        else {
+            mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setSmallIcon(R.drawable.notification_icon)
+                    .setContentTitle("Incoming notification")
+                    .setContentText("This is a demo text that remind you to checkout ur achievements of last week")
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText("This is a demo text that remind you to checkout ur achievements of last week"))
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+
+                    // Set the intent that will fire when the user taps the notification
+                    .setContentIntent(pendingIntent)
+                    .addAction(R.drawable.ic_launcher_foreground, "OPEN POPUP", PendingIntent.getActivity(this, 0, popupIntent, 0))
+                    .setAutoCancel(true);
+        }
+
 
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
@@ -139,5 +216,73 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void showSnackbar(String message, int duration)
+    {
+        // Create snackbar
+        final Snackbar snackbar = Snackbar.make(container , message, duration);
 
+        // Set an action on it, and a handler
+
+        /*
+        snackbar.setAction("DISMISS", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                snackbar.dismiss();
+            }
+        });
+        */
+        snackbar.show();
+    }
+    private void showSnackbarOpenAppSetting(String message, int duration)
+    {
+        // Create snackbar
+        final Snackbar snackbar = Snackbar.make(container , message, duration);
+
+        // Set an action on it, and a handler
+        snackbar.setAction(getResources().getString(R.string.open_setting), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent openSetting = new Intent();
+                openSetting.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", getPackageName(), null);
+                openSetting.setData(uri);
+                startActivity(openSetting);
+                snackbar.dismiss();
+            }
+        });
+        snackbar.show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE) {
+            showSnackbar(getResources().getString(R.string.permission_granted), 1000);
+        }
+
+    }
+
+    private void addControl() {
+        pager = findViewById(R.id.view_pager);
+        tabLayout = findViewById(R.id.tab_layout);
+        FragmentManager manager = getSupportFragmentManager();
+        PagerAdapter adapter = new PagerAdapter(manager);
+        pager.setAdapter(adapter);
+        tabLayout.setupWithViewPager(pager);
+        pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.setTabsFromPagerAdapter(adapter);//deprecated
+        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(pager));
+
+        View root = tabLayout.getChildAt(0);
+        if (root instanceof LinearLayout) {
+            ((LinearLayout) root).setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
+            GradientDrawable drawable = new GradientDrawable();
+            drawable.setColor(getResources().getColor(R.color.divider_line_color));
+            drawable.setSize(2, 1);
+            ((LinearLayout) root).setDividerPadding(10);
+            ((LinearLayout) root).setDividerDrawable(drawable);
+        }
+    }
 }

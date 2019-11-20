@@ -2,4 +2,15 @@
     <string name="app_name">ESmart</string>
     <string name="channel_name">Push Notification</string>
     <string name="channel_description">Test Notification</string>
+    <string name="open_setting">OPEN SETTING</string>
+    <string name="permission_denied">Permission DENIED</string>
+    <string name="open_in_setting_ntf">Please enable it manual</string>
+    <string name="permission_granted">Permission GRANTED</string>
+
+    <string name="require_perm_title">Require permission</string>
+    <string name="require_perm_info">This app require storage permission to run, please grant it!</string>
+
+    <string name="ok_btn">OK</string>
+    <string name="cancel_btn">Cancel</string>
+
 </resources>
