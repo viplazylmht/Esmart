@@ -5,6 +5,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -13,6 +15,7 @@ import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -24,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
@@ -33,6 +37,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
@@ -47,6 +53,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.File;
+import java.lang.annotation.Inherited;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.app.Notification.EXTRA_NOTIFICATION_ID;
 
@@ -74,7 +89,15 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
 
     //use for firebase database
-    private DatabaseReference easyQuestion;
+    private DatabaseReference easyQuestionDB;
+    private ArrayList<Question> easyQuestions = new ArrayList<>();
+
+    //user for storage
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
+
+    private ImageView image;
+
 
     com.github.lzyzsd.circleprogress.ArcProgress bar1, bar2, bar3;
 
@@ -89,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+        image = findViewById(R.id.image);
 
         container = findViewById(R.id.container);
 
@@ -96,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
         createNotificationChannel();
 
         addControl();
+
         //for google sign in
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -108,20 +133,50 @@ public class MainActivity extends AppCompatActivity {
         signIn();
 
         //for get database
-        easyQuestion = FirebaseDatabase.getInstance().getReference();
+        easyQuestionDB = FirebaseDatabase.getInstance().getReference("Question/Easy");
+        easyQuestionDB.keepSynced(true);
         ReadEasyQuest();
+
+        //for storage
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference("images/");
+
+        FirebaseStorage a;
+
+        ReadImage();
 
         ShowLognInResult();
 
     }
 
-    public void ReadEasyQuest()
-    {
-        easyQuestion.addValueEventListener(new ValueEventListener() {
+    public void ReadEasyQuest(){
+
+/*        String id = easyQuestionDB.push().getKey();
+
+        Question ez = new Question("1", "text", "Cat", "Meo", "Cho", "Ga", "Vit");
+
+        easyQuestionDB.child(id).setValue(ez);
+
+        id = easyQuestionDB.push().getKey();
+        ez = new Question("2", "text", "Cat la gi", "Meo", "Cho", "Ga", "Vit");
+        easyQuestionDB.child(id).setValue(ez);*/
+
+
+        easyQuestionDB.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                User user = new User(dataSnapshot.getValue(User.class).getName(),
-                        dataSnapshot.getValue(User.class).getEmail());
+                for (DataSnapshot dts : dataSnapshot.getChildren()) {
+                    Question quest = new Question(dts.getValue(Question.class).getId(),
+                            dts.getValue(Question.class).getType(),
+                            dts.getValue(Question.class).getDetail(),
+                            dts.getValue(Question.class).getRA(),
+                            dts.getValue(Question.class).getWA1(),
+                            dts.getValue(Question.class).getWA2(),
+                            dts.getValue(Question.class).getWA3());
+                    easyQuestions.add(quest);
+
+                    Add(quest.getDetail());
+                }
             }
 
             @Override
@@ -129,7 +184,35 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
 
+    //to test
+    public void Add(String s){
+        TextView title = toolbar.findViewById(R.id.user_name);
+
+        title.setText(title.getText() + s);
+    }
+
+    public void ReadImage(){
+
+        /*StorageReference islandRef = storageRef.child("19627.jpg");
+
+        final long ONE_MEGABYTE = 1024 * 1024;
+        islandRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                // Data for "images/island.jpg" is returns, use this as needed
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                image.setImageBitmap(bitmap);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
+            }
+        });*/
+
+        //image.setImageResource(R.drawable.notification_icon);
     }
 
     public void ShowLognInResult(){
@@ -305,11 +388,6 @@ public class MainActivity extends AppCompatActivity {
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
 
-            //prevent from using without sign in
-            if (resultCode == 0) {
-                signIn();
-                return;
-            }
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
@@ -323,6 +401,11 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+        //prevent from using without sign in
+        if (mAuth == null || mAuth.getCurrentUser() == null) {
+            signIn();
+            return;
+        }
     }
     private void showSnackbar(String message, int duration)
     {
@@ -411,5 +494,6 @@ public class MainActivity extends AppCompatActivity {
             ((LinearLayout) root).setDividerPadding(10);
             ((LinearLayout) root).setDividerDrawable(drawable);
         }
+
     }
 }
