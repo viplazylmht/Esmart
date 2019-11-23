@@ -30,7 +30,6 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -203,7 +202,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void WriteNewUser(User a, String parent){
-
         userDB.child(id).child(parent).child(days.toString()).setValue(a);
     }
 
@@ -299,6 +297,7 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE);
         }
         else {
+
             Intent serviceIntent = new Intent(this, PopupService.class);
             startService(serviceIntent);
         }
