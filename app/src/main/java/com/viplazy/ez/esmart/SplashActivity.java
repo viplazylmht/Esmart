@@ -65,25 +65,6 @@ public class SplashActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
     }
 
-    public void ReadUser(){
-        //String id = userDB.push().getKey();
-        if (mAuth!= null && mAuth.getCurrentUser() != null)
-        {
-            /*String id = mAuth.getCurrentUser().getEmail();
-            id = id.replace('.', ',');
-
-            String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
-
-            ArrayList<String> ids = new ArrayList<String>();
-            ids.add("11");
-            ids.add("45");
-            User a = new User(12, 2, 0.5f, ids);*/
-            //if (mAuth != null && mAuth.getCurrentUser() != null) {
-            //databaseRawData.getUserDB().child(id).child(currentDate).setValue(a);
-            //}
-        }
-    }
-
     //==============google sign in=========
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();

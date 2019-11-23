@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,7 +22,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class PopupService extends Service {
 
@@ -38,13 +45,20 @@ public class PopupService extends Service {
 
     private TextView tv_title;
 
+    private String id;
+    Long days;
+
     private Button btn_close;
 
     DatabaseRawData databaseRawData;
 
     RelativeLayout container;
 
-    Question curQuestion;
+    private Question curQuestion;
+
+    private String email;
+
+    private boolean writted = false;
 
     WindowManager.LayoutParams popup_params;
 
@@ -61,8 +75,26 @@ public class PopupService extends Service {
     }
 
     @Override
+    public void onStart(Intent intent, int startId) {
+        super.onStart(intent, startId);
+
+
+        email = intent.getStringExtra("email");
+        id = email.replace('.',',');
+        ReadUser();
+
+        ReadEasyQuest();
+        ReadMediumQuest();
+        ReadHardQuest();
+    }
+
+    @Override
     public void onCreate() {
         super.onCreate();
+
+        Intent intent = new Intent();
+        String message = intent.getStringExtra("email");
+
         state = POPUP_MAIN;
 
         //Language language = new Language();
@@ -114,7 +146,6 @@ public class PopupService extends Service {
         //databaseRawData.setEasyQuestionDB(new DatabaseReference(FirebaseDatabase.getInstance().getReference("Question/Medium")));
         //databaseRawData.getEasyQuestionDB().keepSynced(true);
 
-        ReadEasyQuest();
 //        mQuestionView = getIncludeLayout(POPUP_QUESTION_LAYOUT);
 
 
@@ -129,13 +160,30 @@ public class PopupService extends Service {
                 try {
                     if (mQuestionChild.getSelectedView().getText().toString().equals(mQuestionChild.getQuestionData().getRA())) {
                         msg("Correct!");
+                        addHistoryAnswerId(mQuestionChild.getQuestionData().getId());
+                        writted = false;
+                        UpdateUser(true);
 
                     }
-                    else msg("Wrong Answer!");
-                    addHistoryAnswerId(mQuestionChild.getQuestionData().getId());
+                    else {
+                        msg("Wrong Answer!");
+                        writted = false;
+                        UpdateUser(false);
+                    }
                     mQuestionChild.setCurrentState(QuestionLayout.SELECTED_ITEM_NONE);
 
-                    popAEasyQuestion();
+                    boolean isOut;
+                    isOut = popAEasyQuestion();
+
+                    if (isOut){
+                        isOut = popAMediumQuestion();
+                        if (isOut){
+                            isOut = popAHardQuestion();
+                            if (isOut){
+                                //congratulation
+                            }
+                        }
+                    }
                 }
                 catch (NullPointerException e) {
                     //msg("Please choose the answer first!");
@@ -159,6 +207,28 @@ public class PopupService extends Service {
         super.onDestroy();
 
         if (mPopupView != null) mWindowManager.removeView(mPopupView);
+    }
+
+    public void ReadUser(){
+        databaseRawData.getUserDB().child(id).child("Day").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                ArrayList<String> idPassed;
+                for (DataSnapshot dts : dataSnapshot.getChildren()) {
+                    idPassed = dts.getValue(User.class).getPassQuestID();
+                    SetIDPassed(idPassed);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    void SetIDPassed(ArrayList<String> a){
+        historyAnswerId = a;
     }
 
     View getIncludeLayout(int type) {
@@ -185,10 +255,134 @@ public class PopupService extends Service {
     private void msg(String s) {
         Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
     }
+    public void UpdateUser(final boolean right){
+        try {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            final String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+            String pointDate = "2019-11-18";
+            String id = email;
+            id = id.replace('.', ',');
+
+            //detect when to slip week
+            Date now = df.parse(currentDate);
+            Date point = df.parse(pointDate);
+
+            days = now.getTime() - point.getTime();
+            days /= (1000 * 60 *60 * 24);
+            //new week
+            if (days % 7 == 0){
+                databaseRawData.getUserDB().child(id).child("Day").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        int numQuest = 0;
+                        int numRight = 0;
+                        String email;
+                        for (DataSnapshot dts : dataSnapshot.getChildren()) {
+                            numQuest += dts.getValue(User.class).getNumQuestAnswered();
+                            numRight += dts.getValue(User.class).getPercent() * numQuest;
+                        }
+                        //finish
+                        numQuest++;
+                        if (right){
+                            numRight++;
+                        }
+                        User a = new User(0, numQuest, 1.0f * numRight / numQuest, new ArrayList<String>());
+
+                        WriteNewUser(a, "Week", days.toString());
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+            //new month
+            if (days % 30 == 0){
+                databaseRawData.getUserDB().child(id).child("Week").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        int numQuest = 0;
+                        int numRight = 0;
+                        String email;
+                        for (DataSnapshot dts : dataSnapshot.getChildren()) {
+                            numQuest += dts.getValue(User.class).getNumQuestAnswered();
+                            numRight += dts.getValue(User.class).getPercent() * numQuest;
+                        }
+                        //finish
+                        numQuest++;
+                        if (right){
+                            numRight++;
+                        }
+                        User a = new User(0, numQuest, 1.0f * numRight / numQuest, new ArrayList<String>());
+
+                        WriteNewUser(a, "Month", days.toString());
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+            databaseRawData.getUserDB().child(id).child("Day").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    int numQuest = 0;
+                    int numRight = 0;
+                    ArrayList<String> idPassed = new ArrayList<String>();
+                    String email;
+                    for (DataSnapshot dts : dataSnapshot.getChildren()) {
+                        numQuest += dts.getValue(User.class).getNumQuestAnswered();
+                        numRight += dts.getValue(User.class).getPercent() * numQuest;
+                        idPassed = dts.getValue(User.class).getPassQuestID();
+                    }
+                    //finish
+                    numQuest++;
+                    if (right) {
+                        numRight++;
+                        idPassed.add(historyAnswerId.get(historyAnswerId.size() - 1));
+                    }
+                    if (idPassed != null) {
+                        User a = new User(0, numQuest, 1.0f * numRight / numQuest, idPassed);
+
+                        WriteNewUser(a, "Day", currentDate);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            //databaseRawData.getUserDB().child(id).child("Day").child(currentDate);
+            //User a = new User(12, 2, 0.5f, ids);
+
+            //databaseRawData.getUserDB().child(id).child("Day").child(currentDate).setValue(a);
+        }
+
+        catch (ParseException e) {
+
+        }
+    }
+
+    public void WriteNewUser(User a, String parent, String key){
+        if (!writted) {
+            databaseRawData.getUserDB().child(id).child(parent).child(key).setValue(a);
+            writted = true;
+        }
+    }
 
     public void ReadEasyQuest(){
 
         /*String id = databaseRawData.getEasyQuestionDB().push().getKey();
+        Question ez = new Question("img","","What is it?","https://live.staticflickr.com/7152/6832192479_226a4a21fa_b.jpg","Elephant"
+                ,"Cat", "Dog","Dragon");
+        databaseRawData.getEasyQuestionDB().child(id).setValue(ez);
+        String id = databaseRawData.getEasyQuestionDB().push().getKey();
         Question ez = new Question("text", "The annual general meeting was in the conference centre", "Meo", "Cho", "Ga", "Vit");
         databaseRawData.getEasyQuestionDB().child(id).setValue(ez);
         id = databaseRawData.getEasyQuestionDB().push().getKey();
@@ -216,6 +410,43 @@ public class PopupService extends Service {
                 //finish;
 
                 popAEasyQuestion();
+                //curQuestion here
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public void ReadMediumQuest(){
+
+        /*id = databaseRawData.getEasyQuestionDB().push().getKey();
+        ez = new Question("text", "Cat la gi", "Meo", "Cho", "Ga", "Vit");
+        databaseRawData.getEasyQuestionDB().child(id).setValue(ez);*/
+
+        databaseRawData.getMediumQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseRawData.getMediumQuestions().clear();
+
+                for (DataSnapshot dts : dataSnapshot.getChildren()) {
+                    Question result = new Question();
+                    result.setDetail(dts.getValue(Question.class).getDetail());
+                    result.setType(dts.getValue(Question.class).getType());
+                    result.setPath(dts.getValue(Question.class).getPath());
+                    result.setId(dts.getKey());
+                    result.setRA(dts.getValue(Question.class).getRA());
+                    result.setWA1(dts.getValue(Question.class).getWA1());
+                    result.setWA2(dts.getValue(Question.class).getWA2());
+                    result.setWA3(dts.getValue(Question.class).getWA3());
+
+                    databaseRawData.getMediumQuestions().add(result);
+                }
+                //finish;
+
+                //popAMediumQuestion();
 
                 //curQuestion here
             }
@@ -227,25 +458,110 @@ public class PopupService extends Service {
         });
     }
 
-    private void popAEasyQuestion() {
+    public void ReadHardQuest(){
+
+        /*String id = databaseRawData.getEasyQuestionDB().push().getKey();
+        Question ez = new Question("text", "The annual general meeting was in the conference centre", "Meo", "Cho", "Ga", "Vit");
+        databaseRawData.getEasyQuestionDB().child(id).setValue(ez);
+        id = databaseRawData.getEasyQuestionDB().push().getKey();
+        ez = new Question("text", "Cat la gi", "Meo", "Cho", "Ga", "Vit");
+        databaseRawData.getEasyQuestionDB().child(id).setValue(ez);*/
+
+        databaseRawData.getHardQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseRawData.getHardQuestions().clear();
+
+                for (DataSnapshot dts : dataSnapshot.getChildren()) {
+                    Question result = new Question();
+                    result.setDetail(dts.getValue(Question.class).getDetail());
+                    result.setType(dts.getValue(Question.class).getType());
+                    result.setPath(dts.getValue(Question.class).getPath());
+                    result.setId(dts.getKey());
+                    result.setRA(dts.getValue(Question.class).getRA());
+                    result.setWA1(dts.getValue(Question.class).getWA1());
+                    result.setWA2(dts.getValue(Question.class).getWA2());
+                    result.setWA3(dts.getValue(Question.class).getWA3());
+
+                    databaseRawData.getHardQuestions().add(result);
+                }
+                //finish;
+                //popAHardQuestion();
+
+                //curQuestion here
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private boolean popAEasyQuestion() {
         if (databaseRawData.getEasyQuestions().size() != 0) {
             // Add(databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION).getDetail());
             //Question get here
-            int k = 0;
-
+            ArrayList<String> arrString = new ArrayList<String>();
             while (true) {
 
                 Question q = databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION);
+                if (arrString.indexOf(q.getId()) < 0)
+                    arrString.add(q.getId());
                 if (!isInHistoryAnswerId(q.getId())) {
                     mQuestionChild.setQuestionData(q);
-                    return;
+                    return false;
                 }
-                else {
-                    k++;
-                    if (k > databaseRawData.getEasyQuestions().size()) break;
-                };
+                if (arrString.size() >= databaseRawData.getEasyQuestions().size()){
+                    return true;
+                }
             }
         }
+        return true;
+    }
+
+    private boolean popAMediumQuestion() {
+        if (databaseRawData.getMediumQuestions().size() != 0) {
+            // Add(databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION).getDetail());
+            //Question get here
+            ArrayList<String> arrString = new ArrayList<String>();
+            while (true) {
+
+                Question q = databaseRawData.getQuestion(DatabaseRawData.MEDIUM_QUESTION);
+                if (arrString.indexOf(q.getId()) < 0)
+                    arrString.add(q.getId());
+                if (!isInHistoryAnswerId(q.getId())) {
+                    mQuestionChild.setQuestionData(q);
+                    return false;
+                }
+                if (arrString.size() >= databaseRawData.getMediumQuestions().size()){
+                    return true;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean popAHardQuestion() {
+        if (databaseRawData.getHardQuestions().size() != 0) {
+            // Add(databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION).getDetail());
+            //Question get here
+            ArrayList<String> arrString = new ArrayList<String>();
+            while (true) {
+
+                Question q = databaseRawData.getQuestion(DatabaseRawData.HARD_QUESTION);
+                if (arrString.indexOf(q.getId()) < 0)
+                    arrString.add(q.getId());
+                if (!isInHistoryAnswerId(q.getId())) {
+                    mQuestionChild.setQuestionData(q);
+                    return false;
+                }
+                if (arrString.size() >= databaseRawData.getHardQuestions().size()){
+                    return true;
+                }
+            }
+        }
+        return true;
     }
 
     public ArrayList<String> getHistoryAnswerId() {
