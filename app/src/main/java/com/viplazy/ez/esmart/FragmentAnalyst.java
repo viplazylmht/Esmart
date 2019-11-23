@@ -7,10 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.util.List;
 import java.util.ArrayList;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.github.lzyzsd.circleprogress.ArcProgress;
@@ -22,6 +25,7 @@ import com.github.mikephil.charting.data.BarEntry;
 
 public class FragmentAnalyst extends Fragment {
 
+
     static public int DAY = 1;
     static public int WEEK = 2;
     static public int MONTH = 3;
@@ -31,6 +35,11 @@ public class FragmentAnalyst extends Fragment {
     private View layoutView;
 
     public int targetOfBar;
+
+    public void ChartDraw(){
+
+    }
+    private FrameLayout chart;
 
     private List<BarEntry> barEntriesDay;
     private BarData barDataDay ;
@@ -44,12 +53,13 @@ public class FragmentAnalyst extends Fragment {
     private BarData barDataMonth ;
     private BarDataSet barDataSetMonth;
 
+    private LinearLayout bar1, bar2, bar3, bar4, bar5, bar6, bar7;
+
     //private HorizontalScrollView scrollView;
 
 
 
     public FragmentAnalyst() {
-        targetOfBar = DAY;
         barEntriesDay = new ArrayList<>();
         barEntriesWeek = new ArrayList<>();
         barEntriesMonth = new ArrayList<>();
@@ -102,12 +112,37 @@ public class FragmentAnalyst extends Fragment {
         AddDataMonth(7f,7f);
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         layoutView = inflater.inflate(R.layout.fragment_analyst, container, false);
+
+        chart = layoutView.findViewById(R.id.day_chart);
+
+        bar1 = layoutView.findViewById(R.id.bar1);
+        bar2 = layoutView.findViewById(R.id.bar2);
+        bar3 = layoutView.findViewById(R.id.bar3);
+        bar4 = layoutView.findViewById(R.id.bar4);
+        bar5 = layoutView.findViewById(R.id.bar5);
+        bar6 = layoutView.findViewById(R.id.bar6);
+        bar7 = layoutView.findViewById(R.id.bar7);
+
+        bar2.setY(bar2.getY() + 120);
+        bar3.setY(bar2.getY() + 400);
+        bar4.setY(bar2.getY() + 100);
+        bar5.setY(bar2.getY() + 200);
+        bar6.setY(bar2.getY() + 150);
+        bar7.setY(bar2.getY() + 10);
+
+        ////////////////////////
+
         Description description = new Description();
         description.setText("");
 

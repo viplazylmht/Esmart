@@ -107,9 +107,10 @@ app:layout_constraintTop_toTopOf="parent">
 
             </LinearLayout>
 
-            <LinearLayout
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
+                android:fillViewport="true"
 
                 android:orientation="vertical">
 
@@ -132,7 +133,100 @@ app:layout_constraintTop_toTopOf="parent">
 
                 </HorizontalScrollView>
 
-            </LinearLayout>
+            </ScrollView>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:fillViewport="true"
+                android:orientation="vertical"
+                android:background="#000000">
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginBottom="3dp"
+                    android:fillViewport="true"
+                    android:background="@color/background_tab">
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:fillViewport="true"
+                        android:layout_gravity="bottom"
+                        android:orientation="horizontal"
+                        android:id="@+id/charDays"
+                        >
+                        <LinearLayout
+                            android:layout_gravity="bottom"
+                            android:layout_marginStart="15dp"
+                            android:layout_width="20dp"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:id="@+id/bar1"
+                            android:background="@color/colorPrimaryDark">
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_gravity="bottom"
+                            android:layout_marginStart="65dp"
+                            android:layout_width="20dp"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:id="@+id/bar2"
+                            android:background="@color/colorPrimaryDark">
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_gravity="bottom"
+                            android:layout_marginStart="115dp"
+                            android:layout_width="20dp"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:id="@+id/bar3"
+                            android:background="@color/colorPrimaryDark">
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_gravity="bottom"
+                            android:layout_marginStart="165dp"
+                            android:layout_width="20dp"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:id="@+id/bar4"
+                            android:background="@color/colorPrimaryDark">
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_gravity="bottom"
+                            android:layout_marginStart="215dp"
+                            android:layout_width="20dp"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:id="@+id/bar5"
+                            android:background="@color/colorPrimaryDark">
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_gravity="bottom"
+                            android:layout_marginStart="265dp"
+                            android:layout_width="20dp"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:id="@+id/bar6"
+                            android:background="@color/colorPrimaryDark">
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_gravity="bottom"
+                            android:layout_marginStart="315dp"
+                            android:layout_width="20dp"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:id="@+id/bar7"
+                            android:background="@color/colorPrimaryDark">
+                        </LinearLayout>
+
+
+                    </FrameLayout>
+
+
+                </HorizontalScrollView>
+
+            </ScrollView>
 
 
         </LinearLayout>
