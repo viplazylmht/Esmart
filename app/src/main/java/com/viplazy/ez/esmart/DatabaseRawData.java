@@ -23,31 +23,31 @@ public class DatabaseRawData implements Serializable {
     private DatabaseReference easyQuestionDB;
     private DatabaseReference mediumQuestionDB;
     private DatabaseReference hardQuestionDB;
-    private ArrayList<String> easyQuestions = new ArrayList<>();
-    private ArrayList<String> mediumQuestions = new ArrayList<>();
-    private ArrayList<String> hardQuestions = new ArrayList<>();
+    private ArrayList<Question> easyQuestions = new ArrayList<>();
+    private ArrayList<Question> mediumQuestions = new ArrayList<>();
+    private ArrayList<Question> hardQuestions = new ArrayList<>();
+
     private DatabaseReference userDB;
     public Question question = new Question();
     private User curUser;
 
-    public void getQuestion(int level){
+    public Question getQuestion(int level){
         Random random = new Random();
 
         if (level == EASY_QUESTION){
             int i = random.nextInt(easyQuestions.size());
-            DatabaseReference dref = easyQuestionDB.child(easyQuestions.get(i));
-            getQuestionFromDataRef(dref);
+            return easyQuestions.get(i);
         }
         if (level == MEDIUM_QUESTION){
             int i = random.nextInt(mediumQuestions.size());
-            DatabaseReference dref = mediumQuestionDB.child(mediumQuestions.get(i));
-            getQuestionFromDataRef(dref);
+            return mediumQuestions.get(i);
         }
         if (level == HARD_QUESTION) {
             int i = random.nextInt(hardQuestions.size());
-            DatabaseReference dref = hardQuestionDB.child(hardQuestions.get(i));
-            getQuestionFromDataRef(dref);
+            return hardQuestions.get(i);
         }
+
+        return new Question();
     }
 
     private void getQuestionFromDataRef(DatabaseReference dref){
@@ -102,19 +102,20 @@ public class DatabaseRawData implements Serializable {
         this.hardQuestionDB = hardQuestionDB;
     }
 
-    public ArrayList<String> getMediumQuestions() {
+    public ArrayList<Question> getMediumQuestions() {
         return mediumQuestions;
     }
 
-    public void setMediumQuestions(ArrayList<String> mediumQuestions) {
+    public void setMediumQuestions(ArrayList<Question> mediumQuestions) {
         this.mediumQuestions = mediumQuestions;
     }
 
-    public ArrayList<String> getHardQuestions() {
+    public ArrayList<Question> getHardQuestions() {
         return hardQuestions;
     }
 
-    public void setHardQuestions(ArrayList<String> hardQuestions) {
+    public void setHardQuestions(ArrayList<Question> hardQuestions) {
+
         this.hardQuestions = hardQuestions;
     }
 
@@ -127,7 +128,7 @@ public class DatabaseRawData implements Serializable {
         userDB = FirebaseDatabase.getInstance().getReference("User");
     }
 
-    public DatabaseRawData(DatabaseReference easyQuestionDB, ArrayList<String> easyQuestions, DatabaseReference userDB, User curUser) {
+    public DatabaseRawData(DatabaseReference easyQuestionDB, ArrayList<Question> easyQuestions, DatabaseReference userDB, User curUser) {
         this.easyQuestionDB = easyQuestionDB;
         this.easyQuestions = easyQuestions;
         this.userDB = userDB;
@@ -142,11 +143,12 @@ public class DatabaseRawData implements Serializable {
         this.easyQuestionDB = easyQuestionDB;
     }
 
-    public ArrayList<String> getEasyQuestions() {
+    public ArrayList<Question> getEasyQuestions() {
         return easyQuestions;
     }
 
-    public void setEasyQuestions(ArrayList<String> easyQuestions) {
+    public void setEasyQuestions(ArrayList<Question> easyQuestions) {
+
         this.easyQuestions = easyQuestions;
     }
 
