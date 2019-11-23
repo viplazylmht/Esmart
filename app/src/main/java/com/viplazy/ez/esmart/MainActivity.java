@@ -42,7 +42,21 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
+import javax.xml.datatype.Duration;
 
 import static android.app.Notification.EXTRA_NOTIFICATION_ID;
 
@@ -58,15 +72,27 @@ public class MainActivity extends AppCompatActivity {
 
     RelativeLayout container;
 
+    private String id;
+    Long days;
+
     private ViewPager pager;
     private TabLayout tabLayout;
 
     private Toolbar toolbar;
 
-    //use for sigin with google
-    private static final int RC_SIGN_IN = 1;
-    private GoogleSignInClient mGoogleSignInClient;
-    private FirebaseAuth mAuth;
+    /*//use for firebase database
+    private DatabaseReference easyQuestionDB;
+    private ArrayList<Questions> easyQuestions = new ArrayList<>();
+    private DatabaseReference userDB;
+    private User curUser;*/
+
+    //use for storage
+    //private FirebaseStorage storage;
+    //private StorageReference storageRef;
+
+    DatabaseRawData databaseRawData;
+
+    String email;
 
     private ImageView image;
 
@@ -78,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        email = getIntent().getStringExtra("email");
 
         toolbar = findViewById(R.id.app_tool_bar);
 
@@ -92,18 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
         addControl();
 
-        //for google sign in
-        // Configure Google Sign In
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        mAuth = FirebaseAuth.getInstance();
-
-        signIn();
-
-
+        ReadEasyQuest();
 
         //for storage
         //storage = FirebaseStorage.getInstance();
@@ -113,11 +129,135 @@ public class MainActivity extends AppCompatActivity {
 
         ReadImage();
 
-        ShowLognInResult();
+        Add(email);
 
+        UpdateUser();
+
+        id = email;
+        id = id.replace('.', ',');
     }
 
+    public void UpdateUser(){
+        try {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            final String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+            String pointDate = "2019-11-18";
+            String id = email;
+            id = id.replace('.', ',');
 
+            //detect when to slip week
+            Date now = df.parse(currentDate);
+            Date point = df.parse(pointDate);
+
+            days = now.getTime() - point.getTime();
+            days /= (1000 * 60 *60 * 24);
+            //new week
+            if (days % 7 == 0){
+                databaseRawData.getUserDB().child(id).child("Day").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        int numQuest = 0;
+                        int numRight = 0;
+                        String email;
+                        for (DataSnapshot dts : dataSnapshot.getChildren()) {
+                            numQuest += dts.getValue(User.class).getNumQuestAnswered();
+                            numRight += dts.getValue(User.class).getPercent() * numQuest;
+                        }
+                        //finish
+                        User a = new User(0, numQuest, 1.0f * numRight / numQuest, new ArrayList<String>());
+
+                        WriteNewUser(a, "Week");
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+            //new month
+            if (days % 30 == 0){
+                databaseRawData.getUserDB().child(id).child("Week").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        int numQuest = 0;
+                        int numRight = 0;
+                        String email;
+                        for (DataSnapshot dts : dataSnapshot.getChildren()) {
+                            numQuest += dts.getValue(User.class).getNumQuestAnswered();
+                            numRight += dts.getValue(User.class).getPercent() * numQuest;
+                        }
+                        //finish
+                        User a = new User(0, numQuest, 1.0f * numRight / numQuest, new ArrayList<String>());
+
+                        WriteNewUser(a, "Month");
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+            ArrayList<String> ids = new ArrayList<String>();
+            ids.add("11");
+            ids.add("45");
+            User a = new User(12, 2, 0.5f, ids);
+
+            databaseRawData.getUserDB().child(id).child("Day").child(currentDate).setValue(a);
+        }
+
+        catch (ParseException e) {
+
+        }
+    }
+
+    public void WriteNewUser(User a, String parent){
+        databaseRawData.getUserDB().child(id).child(parent).child(days.toString()).setValue(a);
+    }
+
+    public void ReadEasyQuest(){
+
+        //String id = databaseRawData.getHardQuestionDB().push().getKey();
+        //Question ez = new Question("text", "Tribal differences in the country have created an _____ cycle of violence for years.", "endless", "intermittent", "effortless", "interminable");
+        //databaseRawData.getHardQuestionDB().child(id).setValue(ez);
+        /*id = databaseRawData.getHardQuestionDB().push().getKey();
+        ez = new Question("text", "Please _____ a copy of this payment slip for your files as you’ll need it later.", "retain", "refrain", "disdain", "contain");
+        databaseRawData.getHardQuestionDB().child(id).setValue(ez);
+        id = databaseRawData.getHardQuestionDB().push().getKey();
+        ez = new Question("text", "The lecturer _____ the class’s attention to an error in the calculations.", "drew", "attracted", "put", "showed");
+        databaseRawData.getHardQuestionDB().child(id).setValue(ez);*/
+
+        databaseRawData.getEasyQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseRawData.getEasyQuestions().clear();
+
+                for (DataSnapshot dts : dataSnapshot.getChildren()) {
+                    Question result = new Question();
+                    result.setDetail(dts.getValue(Question.class).getDetail());
+                    result.setType(dts.getValue(Question.class).getType());
+                    result.setRA(dts.getValue(Question.class).getRA());
+                    result.setWA1(dts.getValue(Question.class).getWA1());
+                    result.setWA2(dts.getValue(Question.class).getWA2());
+                    result.setWA3(dts.getValue(Question.class).getWA3());
+
+                    databaseRawData.getEasyQuestions().add(result);
+                }
+                //finish();
+                if (databaseRawData.getEasyQuestions().size() != 0) {
+                    Add(databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION).getDetail());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
 
 
     //to test
@@ -150,11 +290,6 @@ public class MainActivity extends AppCompatActivity {
         //image.setImageResource(R.drawable.notification_icon);
     }
 
-    public void ShowLognInResult(){
-        if (mAuth != null && mAuth.getCurrentUser() != null) {
-            msg("Wellcome " + mAuth.getCurrentUser().getEmail());
-        }
-    }
     @Override
     public void onStart() {
         super.onStart();
@@ -306,12 +441,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //==============google sign in=========
-    private void signIn() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -320,24 +449,6 @@ public class MainActivity extends AppCompatActivity {
             showSnackbar(getResources().getString(R.string.permission_granted), 1000);
         }
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                // Google Sign In was successful, authenticate with Firebase
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                firebaseAuthWithGoogle(account);
-            } catch (ApiException e) {
-                // Google Sign In failed, update UI appropriately
-                // ...
-
-            }
-            //prevent from using without sign in
-            if (mAuth == null || mAuth.getCurrentUser() == null) {
-                signIn();
-                return;
-            }
-        }
     }
     private void showSnackbar(String message, int duration)
     {
@@ -377,29 +488,6 @@ public class MainActivity extends AppCompatActivity {
         snackbar.show();
     }
 
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            msg("Wellcome " + mAuth.getCurrentUser().getEmail());
-                            FirebaseUser user = mAuth.getCurrentUser();
-
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            if (mAuth == null) {
-                                msg("Logn in failed");
-                            }
-                        }
-
-                        // ...
-                    }
-                });
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -409,9 +497,7 @@ public class MainActivity extends AppCompatActivity {
         pager = findViewById(R.id.view_pager);
         tabLayout = findViewById(R.id.tab_layout);
         FragmentManager manager = getSupportFragmentManager();
-
         PagerAdapter adapter = new PagerAdapter(manager);
-
         pager.setAdapter(adapter);
         tabLayout.setupWithViewPager(pager);
         pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
