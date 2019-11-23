@@ -3,6 +3,7 @@ package com.viplazy.ez.esmart;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.Build;
@@ -24,9 +25,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -219,6 +222,11 @@ public class PopupService extends Service {
             public void onClick(View view) {
 
             try {
+                //get curtime
+                String hour = new SimpleDateFormat("hh", Locale.getDefault()).format(new Date());
+                Integer realHour = Integer.parseInt(hour);
+
+
                 if (mQuestionChild.getSelectedView().getText().toString().equals(mQuestionChild.getQuestionData().getRA())) {
                     //msg("Correct!");
                     addHistoryAnswerId(mQuestionChild.getQuestionData().getId());
@@ -374,13 +382,15 @@ public class PopupService extends Service {
     private void msg(String s) {
         Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
     }
+    DateFormat df;
+    boolean is7Days;
+    boolean is30Days;
     public void UpdateUser(final boolean right){
         try {
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             final String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
             String pointDate = "2019-11-18";
-            String id = email;
-            id = id.replace('.', ',');
+            email = email.replace('.',',');
 
             //detect when to slip week
             Date now = df.parse(currentDate);
@@ -389,25 +399,31 @@ public class PopupService extends Service {
             days = now.getTime() - point.getTime();
             days /= (1000 * 60 *60 * 24);
             //new week
-            if (days % 7 == 0){
-                databaseRawData.getUserDB().child(id).child("Day").addValueEventListener(new ValueEventListener() {
+            //if (days % 7 == 0){
+                databaseRawData.getUserDB().child(email).child("Day").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         int numQuest = 0;
                         int numRight = 0;
-                        String email;
-                        for (DataSnapshot dts : dataSnapshot.getChildren()) {
-                            numQuest += dts.getValue(User.class).getNumQuestAnswered();
-                            numRight += dts.getValue(User.class).getPercent() * numQuest;
+                        if (dataSnapshot.getChildrenCount() == 7L) {
+                            is7Days = true;
                         }
+                        else {
+                            for (DataSnapshot dts : dataSnapshot.getChildren()) {
+
+                                numQuest += dts.getValue(User.class).getNumQuestAnswered();
+                                numRight += dts.getValue(User.class).getPercent() * dts.getValue(User.class).getNumQuestAnswered();
+                            }
+                        }
+                        if (is7Days) databaseRawData.getUserDB().child(email).child("Day").removeValue();
                         //finish
                         numQuest++;
                         if (right){
                             numRight++;
                         }
                         User a = new User(0, numQuest, 1.0f * numRight / numQuest, new ArrayList<String>());
-
-                        WriteNewUser(a, "Week", days.toString());
+                        Long key = days / 7;
+                        WriteNewUser(a, "Week", key.toString());
                     }
 
                     @Override
@@ -415,28 +431,32 @@ public class PopupService extends Service {
 
                     }
                 });
-            }
-
+            //}
+            writted=false;
             //new month
-            if (days % 30 == 0){
-                databaseRawData.getUserDB().child(id).child("Week").addValueEventListener(new ValueEventListener() {
+            //if (days % 30 == 0){
+                databaseRawData.getUserDB().child(email).child("Week").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         int numQuest = 0;
                         int numRight = 0;
-                        String email;
                         for (DataSnapshot dts : dataSnapshot.getChildren()) {
-                            numQuest += dts.getValue(User.class).getNumQuestAnswered();
-                            numRight += dts.getValue(User.class).getPercent() * numQuest;
+                            if (dataSnapshot.getChildrenCount() == 4) {
+                                is30Days = true;
+                            } else {
+                                numQuest += dts.getValue(User.class).getNumQuestAnswered();
+                                numRight += dts.getValue(User.class).getPercent() * dts.getValue(User.class).getNumQuestAnswered();
+                            }
+                        }
+                        if (is30Days){
+                            databaseRawData.getUserDB().child(email).child("Week").removeValue();
                         }
                         //finish
-                        numQuest++;
-                        if (right){
-                            numRight++;
-                        }
                         User a = new User(0, numQuest, 1.0f * numRight / numQuest, new ArrayList<String>());
+                        Long key = days / 30;
 
-                        WriteNewUser(a, "Month", days.toString());
+                        writted=false;
+                        WriteNewUser(a, "Month", key.toString());
                     }
 
                     @Override
@@ -444,20 +464,19 @@ public class PopupService extends Service {
 
                     }
                 });
-            }
-
-            databaseRawData.getUserDB().child(id).child("Day").addValueEventListener(new ValueEventListener() {
+            //}
+            databaseRawData.getUserDB().child(email).child("Day").child(currentDate).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     int numQuest = 0;
                     int numRight = 0;
                     ArrayList<String> idPassed = new ArrayList<String>();
                     String email;
-                    for (DataSnapshot dts : dataSnapshot.getChildren()) {
-                        numQuest += dts.getValue(User.class).getNumQuestAnswered();
-                        numRight += dts.getValue(User.class).getPercent() * numQuest;
-                        idPassed = dts.getValue(User.class).getPassQuestID();
-                    }
+                    //for (DataSnapshot dts : dataSnapshot.getChildren()) {
+                        numQuest += dataSnapshot.getValue(User.class).getNumQuestAnswered();
+                        numRight += dataSnapshot.getValue(User.class).getPercent() * numQuest;
+                        idPassed = dataSnapshot.getValue(User.class).getPassQuestID();
+                    //}
                     //finish
                     numQuest++;
                     if (right) {
@@ -469,6 +488,7 @@ public class PopupService extends Service {
                     if (idPassed != null) {
                         User a = new User(0, numQuest, 1.0f * numRight / numQuest, idPassed);
 
+                        writted = false;
                         WriteNewUser(a, "Day", currentDate);
                     }
                 }
@@ -492,7 +512,7 @@ public class PopupService extends Service {
 
     public void WriteNewUser(User a, String parent, String key){
         if (!writted) {
-            databaseRawData.getUserDB().child(id).child(parent).child(key).setValue(a);
+            databaseRawData.getUserDB().child(email).child(parent).child(key).setValue(a);
             writted = true;
         }
     }
