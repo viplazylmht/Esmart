@@ -39,6 +39,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -101,8 +102,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -230,51 +229,11 @@ public class MainActivity extends AppCompatActivity {
         databaseRawData.getUserDB().child(id).child(parent).child(days.toString()).setValue(a);
     }
 
-    public void ReadEasyQuest(){
-
-        //String id = databaseRawData.getHardQuestionDB().push().getKey();
-        //Question ez = new Question("text", "Tribal differences in the country have created an _____ cycle of violence for years.", "endless", "intermittent", "effortless", "interminable");
-        //databaseRawData.getHardQuestionDB().child(id).setValue(ez);
-        /*id = databaseRawData.getHardQuestionDB().push().getKey();
-        ez = new Question("text", "Please _____ a copy of this payment slip for your files as you’ll need it later.", "retain", "refrain", "disdain", "contain");
-        databaseRawData.getHardQuestionDB().child(id).setValue(ez);
-        id = databaseRawData.getHardQuestionDB().push().getKey();
-        ez = new Question("text", "The lecturer _____ the class’s attention to an error in the calculations.", "drew", "attracted", "put", "showed");
-        databaseRawData.getHardQuestionDB().child(id).setValue(ez);*/
-
-        databaseRawData.getEasyQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                databaseRawData.getEasyQuestions().clear();
-
-                for (DataSnapshot dts : dataSnapshot.getChildren()) {
-                    Question result = new Question();
-                    result.setDetail(dts.getValue(Question.class).getDetail());
-                    result.setType(dts.getValue(Question.class).getType());
-                    result.setRA(dts.getValue(Question.class).getRA());
-                    result.setWA1(dts.getValue(Question.class).getWA1());
-                    result.setWA2(dts.getValue(Question.class).getWA2());
-                    result.setWA3(dts.getValue(Question.class).getWA3());
-
-                    databaseRawData.getEasyQuestions().add(result);
-                }
-                //finish();
-                if (databaseRawData.getEasyQuestions().size() != 0) {
-                    Add(databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION).getDetail());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
 
 
     //to test
     public void Add(String s){
-        TextView title = (TextView) toolbar.findViewById(R.id.user_name);
+        TextView title = toolbar.findViewById(R.id.user_name);
 
         title.setText(title.getText() + s);
 
