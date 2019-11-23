@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -15,6 +14,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,7 +29,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class PopupService extends Service {
@@ -57,6 +56,8 @@ public class PopupService extends Service {
 
     ImageView close_btn;
 
+    private TextView tv_next_question;
+
     Point defaultPoint;
 
     Context context;
@@ -68,7 +69,11 @@ public class PopupService extends Service {
 
     WindowManager.LayoutParams popup_params;
 
+    private ScrollView answer_filed;
+
     private ArrayList<String> historyAnswerId = new ArrayList<>();
+
+
 
     public PopupService() {
     }
@@ -106,12 +111,45 @@ public class PopupService extends Service {
         collapsedView = mPopupView.findViewById(R.id.collapse_view);
         expandedView = mPopupView.findViewById(R.id.expanded_container);
 
+        answer_filed = mPopupView.findViewById(R.id.answer_field);
+
         collapsedView.setVisibility(View.VISIBLE);
         expandedView.setVisibility(View.GONE);
 
         close_btn = mPopupView.findViewById(R.id.close_btn);
 
+        tv_next_question = mPopupView.findViewById(R.id.tv_next_question);
+        tv_next_question.setVisibility(View.GONE);
 
+        tv_next_question.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mQuestionChild.getQuestionTitle().setVisibility(View.VISIBLE);
+                answer_filed.setVisibility(View.VISIBLE);
+                mQuestionChild.getSubmit().setVisibility(View.VISIBLE);
+
+                //mQuestionChild.getImageView().setBackgroundColor(Color.TRANSPARENT);
+
+                mQuestionChild.getImageView().setVisibility(View.GONE);
+
+                tv_next_question.setVisibility(View.GONE);
+                boolean isOut;
+                isOut = popAEasyQuestion();
+
+                if (isOut){
+                    isOut = popAMediumQuestion();
+                    if (isOut){
+                        isOut = popAHardQuestion();
+                        if (isOut){
+                            //congratulation
+                            Question cur = new Question();
+                            cur.setType("Win");
+                            mQuestionChild.setQuestionData(cur);
+                        }
+                    }
+                }
+            }
+        });
 
         close_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,30 +224,17 @@ public class PopupService extends Service {
                     addHistoryAnswerId(mQuestionChild.getQuestionData().getId());
                     writted = false;
                     UpdateUser(true);
+                    showResult(true);
 
                 }
                 else {
                     msg("Wrong Answer!");
                     writted = false;
                     UpdateUser(false);
+                    showResult(false);
                 }
                 mQuestionChild.setCurrentState(QuestionLayout.SELECTED_ITEM_NONE);
 
-                boolean isOut;
-                isOut = popAEasyQuestion();
-
-                if (isOut){
-                    isOut = popAMediumQuestion();
-                    if (isOut){
-                        isOut = popAHardQuestion();
-                        if (isOut){
-                            //congratulation
-                            Question cur = new Question();
-                            cur.setType("Win");
-                            mQuestionChild.setQuestionData(cur);
-                        }
-                    }
-                }
             }
             catch (NullPointerException e) {
                 //msg("Please choose the answer first!");
@@ -345,26 +370,6 @@ public class PopupService extends Service {
         historyAnswerId = a;
     }
 
-    View getIncludeLayout(int type) {
-
-        View v;
-        switch (type) {
-            case  POPUP_QUESTION_LAYOUT: {
-                v = LayoutInflater.from(this).inflate(R.layout.popup_question_layout, null);
-                break;
-            }
-            case POPUP_MAIN:
-            default: v = LayoutInflater.from(this).inflate(R.layout.popup_main, null);
-        }
-
-        LinearLayout.LayoutParams layoutParams =new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-        layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
-
-        v.setLayoutParams(layoutParams);
-
-        return v;
-    }
-
     // fast way to call Toast
     private void msg(String s) {
         Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
@@ -495,10 +500,18 @@ public class PopupService extends Service {
     public void ReadEasyQuest(){
 
         /*String id = databaseRawData.getEasyQuestionDB().push().getKey();
-        Question ez = new Question("text", "The annual general meeting was in the conference centre", "Meo", "Cho", "Ga", "Vit");
+        Question ez = new Question("audio","","What did she say?","https://raw.githubusercontent.com/viplazylmht/Esmart/QuestionResource/audio/find.mp3",
+                 "find", "fine", "my", "hight");
         databaseRawData.getEasyQuestionDB().child(id).setValue(ez);
+
         id = databaseRawData.getEasyQuestionDB().push().getKey();
-        ez = new Question("text", "Cat la gi", "Meo", "Cho", "Ga", "Vit");
+        ez = new Question("audio","","What did she say?","https://raw.githubusercontent.com/viplazylmht/Esmart/QuestionResource/audio/knight.mp3",
+                 "knight", "nice", "kind", "buy");
+        databaseRawData.getEasyQuestionDB().child(id).setValue(ez);
+
+        id = databaseRawData.getEasyQuestionDB().push().getKey();
+        ez = new Question("audio","","What did she say?","https://raw.githubusercontent.com/viplazylmht/Esmart/QuestionResource/audio/life.mp3",
+                 "life", "light", "lie", "nice");
         databaseRawData.getEasyQuestionDB().child(id).setValue(ez);*/
 
         databaseRawData.getEasyQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
@@ -720,7 +733,7 @@ public class PopupService extends Service {
     }
 
     public boolean isInHistoryAnswerId(String id) {
-        if (historyAnswerId == null || historyAnswerId.indexOf(id) >= 0) return true;
+        if (historyAnswerId != null && historyAnswerId.indexOf(id) >= 0) return true;
         else return false;
     }
 
@@ -729,5 +742,19 @@ public class PopupService extends Service {
     }
 
 
+    public void showResult(boolean isWin) {
+        mQuestionChild.getQuestionTitle().setVisibility(View.GONE);
+        answer_filed.setVisibility(View.GONE);
+        mQuestionChild.getSubmit().setVisibility(View.GONE);
 
+        mQuestionChild.getImageView().setVisibility(View.VISIBLE);
+        if (isWin) {
+            mQuestionChild.getImageView().setBackgroundResource(R.drawable.ic_win);
+        }
+        else {
+            mQuestionChild.getImageView().setBackgroundResource(R.drawable.ic_wlose);
+        }
+
+        tv_next_question.setVisibility(View.VISIBLE);
+    }
 }

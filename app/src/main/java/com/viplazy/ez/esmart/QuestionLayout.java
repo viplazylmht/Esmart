@@ -3,7 +3,6 @@ package com.viplazy.ez.esmart;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -84,7 +83,7 @@ public class QuestionLayout {
 
             imageView.setVisibility(View.VISIBLE);
 
-            imageView.setBackgroundColor(Color.TRANSPARENT);
+            //imageView.setBackgroundColor(Color.TRANSPARENT);
 
             new DownloadImage().execute(questionData.getPath());
 
