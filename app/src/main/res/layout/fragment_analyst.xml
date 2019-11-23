@@ -78,13 +78,6 @@ app:layout_constraintTop_toTopOf="parent">
                         android:layout_height="2dp"
                         android:background="#ff131313"></LinearLayout>
 
-                    <TextView
-                        android:id="@+id/tv_week_achev"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="2/8   CORRECT/TOTAL"
-                        android:textSize="18dp" />
 
                 </LinearLayout>
 
@@ -168,14 +161,6 @@ app:layout_constraintTop_toTopOf="parent">
                         android:layout_height="2dp"
                         android:background="#ff131313"></LinearLayout>
 
-                    <TextView
-                        android:id="@+id/tv_today_achev"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="26/40   CORRECT/TOTAL"
-                        android:textSize="18dp" />
-
                 </LinearLayout>
 
                 <LinearLayout
@@ -256,14 +241,6 @@ app:layout_constraintTop_toTopOf="parent">
                         android:layout_height="2dp"
                         android:background="#ff131313"></LinearLayout>
 
-                    <TextView
-                        android:id="@+id/tv_month_achev"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="70/200   CORRECT/TOTAL"
-                        android:textSize="18dp" />
-
                 </LinearLayout>
 
                 <LinearLayout
@@ -317,23 +294,6 @@ app:layout_constraintTop_toTopOf="parent">
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/container3">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Correct percent: "
-                android:textSize="18dp" />
-
-            <TextView
-                android:id="@+id/tv_correct_percent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="23%"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                android:textColor="#ff131313"
-                android:textSize="18sp" />
         </LinearLayout>
 
         <LinearLayout

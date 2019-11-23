@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 
 import com.github.lzyzsd.circleprogress.ArcProgress;
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -94,11 +95,18 @@ public class FragmentAnalyst extends Fragment {
                 Log.d("day chart", "Read");
                 // Set Data
                 if(barEntriesDay.size() >= 1){
-                    barDataSetDay = new BarDataSet(barEntriesDay, "Correct");
+                    barDataSetDay = new BarDataSet(barEntriesDay, "Correct %");
                     barDataDay = new BarData(barDataSetDay);
                     barDataDay.setBarWidth(0.9f);
                     barChart = layoutView.findViewById(R.id.barChartDays);
                     barChart.setData(barDataDay);
+                    barChart.setFitBars(true);
+                    barChart.getAxisLeft().setDrawLabels(false);
+                    barChart.getAxisRight().setDrawLabels(false);
+                    barChart.getXAxis().setDrawLabels(false);
+                    Description description = new Description();
+                    description.setText("");
+                    barChart.setDescription(description);
                     UpdateChart();
                 }
 
@@ -132,11 +140,19 @@ public class FragmentAnalyst extends Fragment {
                 Log.d("week chart", "Read");
                 // Set Data
                 if(barEntriesWeek.size() >= 1){
-                    barDataSetWeek = new BarDataSet(barEntriesWeek, "Correct");
+
+                    barDataSetWeek = new BarDataSet(barEntriesWeek, "Correct %");
                     barDataWeek = new BarData(barDataSetWeek);
                     barDataWeek.setBarWidth(0.9f);
                     barChart = layoutView.findViewById(R.id.barChartWeeks);
                     barChart.setData(barDataWeek);
+                    barChart.setFitBars(true);
+                    barChart.getAxisLeft().setDrawLabels(false);
+                    barChart.getAxisRight().setDrawLabels(false);
+                    barChart.getXAxis().setDrawLabels(false);
+                    Description description = new Description();
+                    description.setText("");
+                    barChart.setDescription(description);
                     UpdateChart();
                 }
 
@@ -172,11 +188,18 @@ public class FragmentAnalyst extends Fragment {
                 Log.d("month chart", "Read");
                 // Set Data
                 if(barEntriesMonth.size() >= 1){
-                    barDataSetMonth = new BarDataSet(barEntriesMonth, "Correct");
+                    barDataSetMonth = new BarDataSet(barEntriesMonth, "Correct %");
                     barDataMonth= new BarData(barDataSetMonth);
                     barDataMonth.setBarWidth(0.9f);
                     barChart = layoutView.findViewById(R.id.barChartMonths);
                     barChart.setData(barDataMonth);
+                    barChart.setFitBars(true);
+                    barChart.getAxisLeft().setDrawLabels(false);
+                    barChart.getAxisRight().setDrawLabels(false);
+                    barChart.getXAxis().setDrawLabels(false);
+                    Description description = new Description();
+                    description.setText("");
+                    barChart.setDescription(description);
                     UpdateChart();
                 }
 

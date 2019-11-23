@@ -2,6 +2,7 @@ package com.viplazy.ez.esmart;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,9 +23,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -158,6 +161,11 @@ public class PopupService extends Service {
             public void onClick(View view) {
 
             try {
+                //get curtime
+                String hour = new SimpleDateFormat("hh", Locale.getDefault()).format(new Date());
+                Integer realHour = Integer.parseInt(hour);
+
+
                 if (mQuestionChild.getSelectedView().getText().toString().equals(mQuestionChild.getQuestionData().getRA())) {
                     msg("Correct!");
                     addHistoryAnswerId(mQuestionChild.getQuestionData().getId());
@@ -264,7 +272,7 @@ public class PopupService extends Service {
     public void UpdateUser(final boolean right){
         try {
             df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            final String currentDate = "2019-11-22";// new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+            final String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
             String pointDate = "2019-11-18";
             email = email.replace('.',',');
 
