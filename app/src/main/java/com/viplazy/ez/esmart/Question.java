@@ -1,7 +1,6 @@
 package com.viplazy.ez.esmart;
 
 public class Question {
-    private String id;
     private String type;
     private String detail;
     private String RA;
@@ -9,8 +8,7 @@ public class Question {
     private String WA2;
     private String WA3;
 
-    public Question(String id, String type, String detail, String RA, String WA1, String WA2, String WA3) {
-        this.id = id;
+    public Question(String type, String detail, String RA, String WA1, String WA2, String WA3) {
         this.type = type;
         this.detail = detail;
         this.RA = RA;
@@ -20,14 +18,6 @@ public class Question {
     }
 
     public Question() {
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getType() {

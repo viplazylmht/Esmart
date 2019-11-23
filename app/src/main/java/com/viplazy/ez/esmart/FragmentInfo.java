@@ -31,7 +31,7 @@ public class FragmentInfo extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        imageView = infoView.findViewById(R.id.imageView);
+        //imageView = infoView.findViewById(R.id.imageView);
     }
 
     public ImageView getImageView() {

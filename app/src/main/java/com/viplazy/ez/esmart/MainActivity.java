@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -48,6 +49,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -60,8 +62,12 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.lang.annotation.Inherited;
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static android.app.Notification.EXTRA_NOTIFICATION_ID;
 
@@ -72,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int ABOUT = Menu.FIRST + 4;
     private static final int HO_TRO = Menu.FIRST + 6;
     private static final String CHANNEL_ID = "PUSH NOTIFICATION";
-
 
     public static int ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE = 5469;
 
@@ -88,13 +93,17 @@ public class MainActivity extends AppCompatActivity {
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
 
-    //use for firebase database
+    /*//use for firebase database
     private DatabaseReference easyQuestionDB;
-    private ArrayList<Question> easyQuestions = new ArrayList<>();
+    private ArrayList<Questions> easyQuestions = new ArrayList<>();
+    private DatabaseReference userDB;
+    private User curUser;*/
 
-    //user for storage
-    private FirebaseStorage storage;
-    private StorageReference storageRef;
+    //use for storage
+    //private FirebaseStorage storage;
+    //private StorageReference storageRef;
+
+    DatabaseRawData databaseRawData;
 
     private ImageView image;
 
@@ -116,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
         container = findViewById(R.id.container);
 
+        databaseRawData = new DatabaseRawData();
 
         createNotificationChannel();
 
@@ -133,13 +143,18 @@ public class MainActivity extends AppCompatActivity {
         signIn();
 
         //for get database
-        easyQuestionDB = FirebaseDatabase.getInstance().getReference("Question/Easy");
-        easyQuestionDB.keepSynced(true);
+        //databaseRawData.setEasyQuestionDB(new DatabaseReference(FirebaseDatabase.getInstance().getReference("Question/Medium")));
+        databaseRawData.getEasyQuestionDB().keepSynced(true);
+
+        //databaseRawData.setUserDB(FirebaseDatabase.getInstance().getReference("User"));
+        databaseRawData.getUserDB().keepSynced(true);
+
         ReadEasyQuest();
+        ReadUser();
 
         //for storage
-        storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReference("images/");
+        //storage = FirebaseStorage.getInstance();
+        //storageRef = storage.getReference("images/");
 
         FirebaseStorage a;
 
@@ -149,34 +164,44 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void ReadUser(){
+        //String id = userDB.push().getKey();
+        String id = mAuth.getCurrentUser().getEmail();
+        id = id.replace('.', ',');
+
+        String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
+
+        ArrayList<String> ids = new ArrayList<String>();
+        ids.add("11");
+        ids.add("45");
+        User a = new User(12, 2, 0.5f, ids);
+        //if (mAuth != null && mAuth.getCurrentUser() != null) {
+            databaseRawData.getUserDB().child(id).child(currentDate).setValue(a);
+        //}
+    }
+
     public void ReadEasyQuest(){
 
-/*        String id = easyQuestionDB.push().getKey();
+        /*String id = easyQuestionDB.push().getKey();
 
-        Question ez = new Question("1", "text", "Cat", "Meo", "Cho", "Ga", "Vit");
+        Questions ez = new Questions("1", "text", "Dog", "Meo", "Cho", "Ga", "Vit");
 
         easyQuestionDB.child(id).setValue(ez);
 
         id = easyQuestionDB.push().getKey();
-        ez = new Question("2", "text", "Cat la gi", "Meo", "Cho", "Ga", "Vit");
+        ez = new Questions("2", "text", "Dog la gi", "Meo", "Cho", "Ga", "Vit");
         easyQuestionDB.child(id).setValue(ez);*/
+            databaseRawData.getEasyQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseRawData.getEasyQuestions().clear();
 
-
-        easyQuestionDB.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot dts : dataSnapshot.getChildren()) {
-                    Question quest = new Question(dts.getValue(Question.class).getId(),
-                            dts.getValue(Question.class).getType(),
-                            dts.getValue(Question.class).getDetail(),
-                            dts.getValue(Question.class).getRA(),
-                            dts.getValue(Question.class).getWA1(),
-                            dts.getValue(Question.class).getWA2(),
-                            dts.getValue(Question.class).getWA3());
-                    easyQuestions.add(quest);
-
-                    Add(quest.getDetail());
+                    databaseRawData.getEasyQuestions().add(dts.getKey());
                 }
+                databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION);
+                Question a = databaseRawData.question;
+                Add(a.getDetail());
             }
 
             @Override
@@ -184,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
     }
 
     //to test
@@ -191,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
         TextView title = toolbar.findViewById(R.id.user_name);
 
         title.setText(title.getText() + s);
+
     }
 
     public void ReadImage(){
