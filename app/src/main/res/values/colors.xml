@@ -7,8 +7,9 @@
     <color name="background_popup_color">#D0131313</color>
     <color name="black_name_color">#ff131313</color>
 
-    <color name="tab_color">#8B837C3E</color>
+    <color name="tab_color">#DC00E784</color>
+    <color name="background_tab">#CFFFE1</color>
     <color name="tab_select">#ffb33333</color>
-    <color name="divider_line_color">#ffb33333</color>
+    <color name="divider_line_color">#B33333</color>
 
 </resources>

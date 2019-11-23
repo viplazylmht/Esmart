@@ -189,12 +189,6 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
 
-            ArrayList<String> ids = new ArrayList<String>();
-            ids.add("11");
-            ids.add("45");
-            User a = new User(12, 2, 0.5f, ids);
-
-            userDB.child(id).child("Day").child(currentDate).setValue(a);
         }
 
         catch (ParseException e) {

@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 
 import com.github.lzyzsd.circleprogress.ArcProgress;
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -107,7 +108,8 @@ public class FragmentAnalyst extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         layoutView = inflater.inflate(R.layout.fragment_analyst, container, false);
-
+        Description description = new Description();
+        description.setText("");
 
 
         barChart = layoutView.findViewById(R.id.barChartDays);
@@ -118,6 +120,7 @@ public class FragmentAnalyst extends Fragment {
         barDataDay = new BarData(barDataSetDay);
         barDataDay.setBarWidth(0.9f);
         barChart.setData(barDataDay);
+        barChart.setDescription(description);
         UpdateChart();
 
 
@@ -129,6 +132,7 @@ public class FragmentAnalyst extends Fragment {
         barDataWeek = new BarData(barDataSetWeek);
         barDataWeek.setBarWidth(0.9f);
         barChart.setData(barDataWeek);
+        barChart.setDescription(description);
         UpdateChart();
 
 
@@ -142,6 +146,7 @@ public class FragmentAnalyst extends Fragment {
         barDataMonth = new BarData(barDataSetMonth);
         barDataMonth.setBarWidth(0.9f);
         barChart.setData(barDataMonth);
+        barChart.setDescription(description);
         UpdateChart();
 
         return layoutView;

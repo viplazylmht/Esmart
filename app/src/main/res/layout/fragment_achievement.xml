@@ -3,6 +3,7 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="top"
+    android:background="@color/background_tab"
     android:id="@+id/achievement_page">
 
     <ImageView
@@ -11,7 +12,15 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="150dp"
         android:visibility="visible"
-
+        android:adjustViewBounds="true"
         android:id="@+id/rank_image"/>
+    <TextView
+        android:layout_marginTop="25dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="You are on top 33 %"
+        android:textSize="18dp"
+        android:id="@+id/achievement_topPercent"/>
 
 </LinearLayout>

@@ -17,14 +17,14 @@
 
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#ffb33333"/>
+        android:background="@drawable/ic_color_gradient"/>
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
         android:layout_below="@id/divider"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:background="@color/tab_color"
+        android:background="@drawable/ic_color_gradient"
         app:tabTextColor="@android:color/tab_indicator_text"
         app:tabSelectedTextColor="@color/tab_select">
 
