@@ -1,16 +1,18 @@
 package com.viplazy.ez.esmart;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.os.Build;
 import android.os.IBinder;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,19 +38,20 @@ public class PopupService extends Service {
 
     private QuestionLayout mQuestionChild;
 
-    private TextView tv_title;
-
-    private Button btn_close;
+    private View collapsedView;
+    private View expandedView;
 
     DatabaseRawData databaseRawData;
 
     RelativeLayout container;
 
-    Question curQuestion;
+    ImageView close_btn;
+
+    Point defaultPoint;
+
+    Context context;
 
     WindowManager.LayoutParams popup_params;
-
-    private int state;
 
     private ArrayList<String> historyAnswerId = new ArrayList<>();
 
@@ -57,20 +60,42 @@ public class PopupService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+
+
         return null;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        state = POPUP_MAIN;
+
+        context = getApplication().getApplicationContext();
 
         //Language language = new Language();
         //Inflate the chat head layout we created
 
         mPopupView = LayoutInflater.from(this).inflate(R.layout.popup_window, null);
 
+        collapsedView = mPopupView.findViewById(R.id.collapse_view);
+        expandedView = mPopupView.findViewById(R.id.expanded_container);
+
+        collapsedView.setVisibility(View.VISIBLE);
+        expandedView.setVisibility(View.GONE);
+
+        close_btn = mPopupView.findViewById(R.id.close_btn);
+
+
+
+        close_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stopSelf();
+            }
+        });
+
+
         container = mPopupView.findViewById(R.id.container);
+
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             popup_params = new WindowManager.LayoutParams(
@@ -108,6 +133,8 @@ public class PopupService extends Service {
             mWindowManager.addView(mPopupView, popup_params);
         }
 
+        defaultPoint = new Point(popup_params.x, popup_params.y);
+
         databaseRawData = new DatabaseRawData();
 
         //for get database
@@ -121,6 +148,8 @@ public class PopupService extends Service {
         mQuestionView = mPopupView.findViewById(R.id.question_field);
 
         mQuestionChild = new QuestionLayout(mQuestionView);
+
+        mQuestionChild.setContext(context);
 
         mQuestionChild.getSubmit().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,9 +178,97 @@ public class PopupService extends Service {
         tv_menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                stopSelf();
+                if(!isViewCollapsed()) {
+                    expandedView.setVisibility(View.GONE);
+                    collapsedView.setVisibility(View.VISIBLE);
+                }
             }
         });
+
+
+        mPopupView.measure(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+
+
+        final int screenWidth = mPopupView.getMeasuredWidth();
+        final int screenHeight = mPopupView.getMeasuredHeight();
+
+        mPopupView.findViewById(R.id.root_container).setOnTouchListener(new View.OnTouchListener() {
+            private int initialX;
+            private int initialY;
+            private float initialTouchX;
+            private float initialTouchY;
+
+
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+
+                        //remember the initial position.
+                        initialX = popup_params.x;
+                        initialY = popup_params.y;
+
+                        //get the touch location
+                        initialTouchX = event.getRawX();
+                        initialTouchY = event.getRawY();
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        int Xdiff = (int) (event.getRawX() - initialTouchX);
+                        int Ydiff = (int) (event.getRawY() - initialTouchY);
+
+
+                        //The check for Xdiff <5 && YDiff< 5 because sometime elements moves a little while clicking.
+                        //So that is click event.
+                        if (Xdiff < 5 && Ydiff < 5) {
+                            if (isViewCollapsed()) {
+                                //When user clicks on the image view of the collapsed layout,
+                                //visibility of the collapsed layout will be changed to "View.GONE"
+                                //and expanded view will become visible.
+
+                                popup_params.x = defaultPoint.x;
+                                popup_params.y = defaultPoint.y;
+
+
+                                collapsedView.setVisibility(View.GONE);
+                                expandedView.setVisibility(View.VISIBLE);
+
+                                mWindowManager.updateViewLayout(mPopupView, popup_params);
+
+                            }
+                        }
+
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                        if (isViewCollapsed()) {
+                            //Calculate the X and Y coordinates of the view.
+                            popup_params.x = initialX + (int) (event.getRawX() - initialTouchX);
+                            popup_params.y = initialY + (int) (event.getRawY() - initialTouchY);
+
+                            //Update the layout with new X & Y coordinate
+                            mWindowManager.updateViewLayout(mPopupView, popup_params);
+                        }
+                        return true;
+
+                    default:
+                        if (popup_params.x < screenWidth / 2) {
+                            while (popup_params.x > 0) {
+                                popup_params.x -= 10;
+                                mWindowManager.updateViewLayout(mPopupView, popup_params);
+                            }
+                        } else {
+                            while (popup_params.x <= screenWidth) {
+                                popup_params.x += 10;
+                                mWindowManager.updateViewLayout(mPopupView, popup_params);
+                            }
+                        }
+                        return false;
+                }}
+        });
+    }
+
+    private boolean isViewCollapsed() {
+        return mPopupView == null || mPopupView.findViewById(R.id.collapse_view).getVisibility() == View.VISIBLE;
     }
 
     @Override
@@ -159,26 +276,6 @@ public class PopupService extends Service {
         super.onDestroy();
 
         if (mPopupView != null) mWindowManager.removeView(mPopupView);
-    }
-
-    View getIncludeLayout(int type) {
-
-        View v;
-        switch (type) {
-            case  POPUP_QUESTION_LAYOUT: {
-                v = LayoutInflater.from(this).inflate(R.layout.popup_question_layout, null);
-                break;
-            }
-            case POPUP_MAIN:
-            default: v = LayoutInflater.from(this).inflate(R.layout.popup_main, null);
-        }
-
-        LinearLayout.LayoutParams layoutParams =new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-        layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
-
-        v.setLayoutParams(layoutParams);
-
-        return v;
     }
 
     // fast way to call Toast
@@ -264,7 +361,6 @@ public class PopupService extends Service {
     public void addHistoryAnswerId(String nextID) {
         if (!isInHistoryAnswerId(nextID)) historyAnswerId.add(nextID);
     }
-
 
 
 

@@ -1,10 +1,19 @@
 package com.viplazy.ez.esmart;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -28,10 +37,21 @@ public class QuestionLayout {
 
     private Question questionData;
 
+    Context context;
+
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
     private void showQuestionData() {
         if (questionData.getType().equals("text")) {
 
             questionTitle.setText(questionData.getDetail());
+            imageView.setVisibility(View.GONE);
             Random ra = new Random();
 
             int i = ra.nextInt(4);
@@ -57,6 +77,87 @@ public class QuestionLayout {
             }
 
         }
+
+        if (questionData.getType().equals("img")) {
+
+            questionTitle.setText(questionData.getDetail());
+
+            imageView.setVisibility(View.VISIBLE);
+
+            imageView.setBackgroundColor(Color.TRANSPARENT);
+
+            new DownloadImage().execute(questionData.getPath());
+            
+            //
+            Random ra = new Random();
+
+            int i = ra.nextInt(4);
+
+            listAnswer.get(i).setText(questionData.getRA());
+
+            ArrayList<String> wrongAnswer = new ArrayList<>();
+
+            wrongAnswer.add(questionData.getWA1());
+            wrongAnswer.add(questionData.getWA2());
+            wrongAnswer.add(questionData.getWA3());
+
+            int k = 0, j = 0;
+            while (k< 4) {
+                if (k == i) {
+                    k++;
+                    continue;
+                }
+
+                listAnswer.get(k).setText(wrongAnswer.get(j));
+                k++;
+                j++;
+            }
+            //
+        }
+
+        if (questionData.getType().equals("audio")) {
+
+            questionTitle.setText(questionData.getDetail());
+
+            imageView.setVisibility(View.VISIBLE);
+
+            imageView.setBackgroundResource(R.drawable.ic_speaker);
+
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    playSound(context, questionData.getPath());
+                }
+            });
+
+            //
+            Random ra = new Random();
+
+            int i = ra.nextInt(4);
+
+            listAnswer.get(i).setText(questionData.getRA());
+
+            ArrayList<String> wrongAnswer = new ArrayList<>();
+
+            wrongAnswer.add(questionData.getWA1());
+            wrongAnswer.add(questionData.getWA2());
+            wrongAnswer.add(questionData.getWA3());
+
+            int k = 0, j = 0;
+            while (k< 4) {
+                if (k == i) {
+                    k++;
+                    continue;
+                }
+
+                listAnswer.get(k).setText(wrongAnswer.get(j));
+                k++;
+                j++;
+            }
+            //
+        }
+
+
 
     }
 
@@ -214,6 +315,51 @@ public class QuestionLayout {
             }
         }
     }
+    // DownloadImage AsyncTask
+    // using new DownloadImage().execute(URL);
 
+    private class DownloadImage extends AsyncTask<String, Void, Bitmap> {
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... URL) {
+
+            String imageURL = URL[0];
+
+            Bitmap bitmap = null;
+            try {
+                // Download Image from URL
+                InputStream input = new java.net.URL(imageURL).openStream();
+                // Decode Bitmap
+                bitmap = BitmapFactory.decodeStream(input);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return bitmap;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            // Set the bitmap into ImageView
+            imageView.setImageBitmap(result);
+
+        }
+    }
+
+    public static void playSound(Context context, String url) {
+        try {
+            Uri uri = Uri.parse(url);
+            MediaPlayer player = new MediaPlayer();
+            player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            player.setDataSource(context, uri);
+            player.prepare();
+            player.start();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

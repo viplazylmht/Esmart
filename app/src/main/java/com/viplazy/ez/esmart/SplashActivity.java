@@ -20,11 +20,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-
 public class SplashActivity extends AppCompatActivity {
 
 
@@ -142,5 +137,7 @@ public class SplashActivity extends AppCompatActivity {
                     }
                 });
     }
+
+
 
 }

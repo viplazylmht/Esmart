@@ -4,8 +4,9 @@
 
     <item>
         <bitmap
-            android:src="@drawable/ic_splash_screen"
+            android:src="@drawable/ic_load_background"
             android:gravity="center"
             />
     </item>
+
 </layer-list>
