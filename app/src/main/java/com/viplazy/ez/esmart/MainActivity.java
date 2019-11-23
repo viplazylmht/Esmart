@@ -5,6 +5,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -13,16 +15,20 @@ import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
@@ -32,6 +38,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
@@ -40,6 +48,26 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.File;
+import java.lang.annotation.Inherited;
+import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import static android.app.Notification.EXTRA_NOTIFICATION_ID;
 
@@ -50,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int ABOUT = Menu.FIRST + 4;
     private static final int HO_TRO = Menu.FIRST + 6;
     private static final String CHANNEL_ID = "PUSH NOTIFICATION";
-
 
     public static int ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE = 5469;
 
@@ -66,6 +93,21 @@ public class MainActivity extends AppCompatActivity {
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
 
+    /*//use for firebase database
+    private DatabaseReference easyQuestionDB;
+    private ArrayList<Questions> easyQuestions = new ArrayList<>();
+    private DatabaseReference userDB;
+    private User curUser;*/
+
+    //use for storage
+    //private FirebaseStorage storage;
+    //private StorageReference storageRef;
+
+    DatabaseRawData databaseRawData;
+
+    private ImageView image;
+
+
     com.github.lzyzsd.circleprogress.ArcProgress bar1, bar2, bar3;
 
     @Override
@@ -79,13 +121,16 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+        image = findViewById(R.id.image);
 
         container = findViewById(R.id.container);
 
+        databaseRawData = new DatabaseRawData();
 
         createNotificationChannel();
 
         addControl();
+
         //for google sign in
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -97,14 +142,109 @@ public class MainActivity extends AppCompatActivity {
 
         signIn();
 
+        //for get database
+        //databaseRawData.setEasyQuestionDB(new DatabaseReference(FirebaseDatabase.getInstance().getReference("Question/Medium")));
+        databaseRawData.getEasyQuestionDB().keepSynced(true);
+
+        //databaseRawData.setUserDB(FirebaseDatabase.getInstance().getReference("User"));
+        databaseRawData.getUserDB().keepSynced(true);
+
+        ReadEasyQuest();
+        ReadUser();
+
+        //for storage
+        //storage = FirebaseStorage.getInstance();
+        //storageRef = storage.getReference("images/");
+
+        FirebaseStorage a;
+
+        ReadImage();
+
         ShowLognInResult();
 
     }
 
-    public void ShowLognInResult(){
-        if (mAuth != null) {
-            //msg("Wellcome " + mAuth.getCurrentUser().getEmail());
+    public void ReadUser(){
+        //String id = userDB.push().getKey();
+        String id = mAuth.getCurrentUser().getEmail();
+        id = id.replace('.', ',');
 
+        String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
+
+        ArrayList<String> ids = new ArrayList<String>();
+        ids.add("11");
+        ids.add("45");
+        User a = new User(12, 2, 0.5f, ids);
+        //if (mAuth != null && mAuth.getCurrentUser() != null) {
+            databaseRawData.getUserDB().child(id).child(currentDate).setValue(a);
+        //}
+    }
+
+    public void ReadEasyQuest(){
+
+        /*String id = easyQuestionDB.push().getKey();
+
+        Questions ez = new Questions("1", "text", "Dog", "Meo", "Cho", "Ga", "Vit");
+
+        easyQuestionDB.child(id).setValue(ez);
+
+        id = easyQuestionDB.push().getKey();
+        ez = new Questions("2", "text", "Dog la gi", "Meo", "Cho", "Ga", "Vit");
+        easyQuestionDB.child(id).setValue(ez);*/
+            databaseRawData.getEasyQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseRawData.getEasyQuestions().clear();
+
+                for (DataSnapshot dts : dataSnapshot.getChildren()) {
+                    databaseRawData.getEasyQuestions().add(dts.getKey());
+                }
+                databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION);
+                Question a = databaseRawData.question;
+                Add(a.getDetail());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    //to test
+    public void Add(String s){
+        TextView title = toolbar.findViewById(R.id.user_name);
+
+        title.setText(title.getText() + s);
+
+    }
+
+    public void ReadImage(){
+
+        /*StorageReference islandRef = storageRef.child("19627.jpg");
+
+        final long ONE_MEGABYTE = 1024 * 1024;
+        islandRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                // Data for "images/island.jpg" is returns, use this as needed
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                image.setImageBitmap(bitmap);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
+            }
+        });*/
+
+        //image.setImageResource(R.drawable.notification_icon);
+    }
+
+    public void ShowLognInResult(){
+        if (mAuth != null && mAuth.getCurrentUser() != null) {
+            msg("Wellcome " + mAuth.getCurrentUser().getEmail());
         }
     }
     @Override
@@ -259,7 +399,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //google sign in
+    //==============google sign in=========
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -275,11 +415,6 @@ public class MainActivity extends AppCompatActivity {
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
 
-            //prevent from using without sign in
-            if (resultCode == 0) {
-                signIn();
-                return;
-            }
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
@@ -293,6 +428,11 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+        //prevent from using without sign in
+        if (mAuth == null || mAuth.getCurrentUser() == null) {
+            signIn();
+            return;
+        }
     }
     private void showSnackbar(String message, int duration)
     {
@@ -345,13 +485,16 @@ public class MainActivity extends AppCompatActivity {
 
                         } else {
                             // If sign in fails, display a message to the user.
-                            msg("Logn in failed");
+                            if (mAuth == null) {
+                                msg("Logn in failed");
+                            }
                         }
 
                         // ...
                     }
                 });
     }
+    //=====================================
 
     @Override
     protected void onDestroy() {
@@ -378,5 +521,6 @@ public class MainActivity extends AppCompatActivity {
             ((LinearLayout) root).setDividerPadding(10);
             ((LinearLayout) root).setDividerDrawable(drawable);
         }
+
     }
 }
