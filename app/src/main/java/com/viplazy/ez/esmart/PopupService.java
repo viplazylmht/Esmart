@@ -157,37 +157,40 @@ public class PopupService extends Service {
             @Override
             public void onClick(View view) {
 
-                try {
-                    if (mQuestionChild.getSelectedView().getText().toString().equals(mQuestionChild.getQuestionData().getRA())) {
-                        msg("Correct!");
-                        addHistoryAnswerId(mQuestionChild.getQuestionData().getId());
-                        writted = false;
-                        UpdateUser(true);
+            try {
+                if (mQuestionChild.getSelectedView().getText().toString().equals(mQuestionChild.getQuestionData().getRA())) {
+                    msg("Correct!");
+                    addHistoryAnswerId(mQuestionChild.getQuestionData().getId());
+                    writted = false;
+                    UpdateUser(true);
 
-                    }
-                    else {
-                        msg("Wrong Answer!");
-                        writted = false;
-                        UpdateUser(false);
-                    }
-                    mQuestionChild.setCurrentState(QuestionLayout.SELECTED_ITEM_NONE);
+                }
+                else {
+                    msg("Wrong Answer!");
+                    writted = false;
+                    UpdateUser(false);
+                }
+                mQuestionChild.setCurrentState(QuestionLayout.SELECTED_ITEM_NONE);
 
-                    boolean isOut;
-                    isOut = popAEasyQuestion();
+                boolean isOut;
+                isOut = popAEasyQuestion();
 
+                if (isOut){
+                    isOut = popAMediumQuestion();
                     if (isOut){
-                        isOut = popAMediumQuestion();
+                        isOut = popAHardQuestion();
                         if (isOut){
-                            isOut = popAHardQuestion();
-                            if (isOut){
-                                //congratulation
-                            }
+                            //congratulation
+                            Question cur = new Question();
+                            cur.setType("Win");
+                            mQuestionChild.setQuestionData(cur);
                         }
                     }
                 }
-                catch (NullPointerException e) {
-                    //msg("Please choose the answer first!");
-                }
+            }
+            catch (NullPointerException e) {
+                //msg("Please choose the answer first!");
+            }
             }
         });
 
@@ -343,7 +346,9 @@ public class PopupService extends Service {
                     numQuest++;
                     if (right) {
                         numRight++;
-                        idPassed.add(historyAnswerId.get(historyAnswerId.size() - 1));
+                        if (idPassed.indexOf(historyAnswerId.get(historyAnswerId.size() - 1)) < 0) {
+                            idPassed.add(historyAnswerId.get(historyAnswerId.size() - 1));
+                        }
                     }
                     if (idPassed != null) {
                         User a = new User(0, numQuest, 1.0f * numRight / numQuest, idPassed);
@@ -379,10 +384,26 @@ public class PopupService extends Service {
     public void ReadEasyQuest(){
 
         /*String id = databaseRawData.getEasyQuestionDB().push().getKey();
-        Question ez = new Question("img","","What is it?","https://live.staticflickr.com/7152/6832192479_226a4a21fa_b.jpg","Elephant"
-                ,"Cat", "Dog","Dragon");
+        Question ez = new Question("img",""
+                ,"What is it?","https://icon-library.net/images/icq-icon.png","lotus"
+                ,"catus", "rose","orchid");
         databaseRawData.getEasyQuestionDB().child(id).setValue(ez);
-        String id = databaseRawData.getEasyQuestionDB().push().getKey();
+
+        id = databaseRawData.getEasyQuestionDB().push().getKey();
+        ez = new Question("img",""
+                ,"What is it?","https://www.planetminecraft.com/files/resource_media/screenshot/1241/fridge_3824223_thumb.jpg",
+                "fridge","washing machine", "freeze machine","air conditioner");
+        databaseRawData.getEasyQuestionDB().child(id).setValue(ez);
+
+
+        id = databaseRawData.getEasyQuestionDB().push().getKey();
+        ez = new Question("img",""
+                ,"What is it?","https://images-na.ssl-images-amazon.com/images/I/51FarxoqT1L._SX466_.jpg",
+                "fork","spoon", "pitchforks","javelin");
+        databaseRawData.getEasyQuestionDB().child(id).setValue(ez);
+
+
+        /*String id = databaseRawData.getEasyQuestionDB().push().getKey();
         Question ez = new Question("text", "The annual general meeting was in the conference centre", "Meo", "Cho", "Ga", "Vit");
         databaseRawData.getEasyQuestionDB().child(id).setValue(ez);
         id = databaseRawData.getEasyQuestionDB().push().getKey();
@@ -408,8 +429,7 @@ public class PopupService extends Service {
                     databaseRawData.getEasyQuestions().add(result);
                 }
                 //finish;
-
-                popAEasyQuestion();
+                //popAEasyQuestion(true);
                 //curQuestion here
             }
 
@@ -422,9 +442,18 @@ public class PopupService extends Service {
 
     public void ReadMediumQuest(){
 
-        /*id = databaseRawData.getEasyQuestionDB().push().getKey();
-        ez = new Question("text", "Cat la gi", "Meo", "Cho", "Ga", "Vit");
-        databaseRawData.getEasyQuestionDB().child(id).setValue(ez);*/
+        /*String id = databaseRawData.getEasyQuestionDB().push().getKey();
+        //id = databaseRawData.getEasyQuestionDB().push().getKey();
+        Question ez = new Question("text", "",
+                "The graduation ball promises to be the social _____ of the year.",
+                "", "event", "festival", "programme", "activity");
+        databaseRawData.getMediumQuestionDB().child(id).setValue(ez);
+
+        id = databaseRawData.getMediumQuestionDB().push().getKey();
+        ez = new Question("text", "",
+                "The college offers a _____ range of evening courses.",
+                "", "wide", "distinct", "changeable", "various");
+        databaseRawData.getMediumQuestionDB().child(id).setValue(ez);*/
 
         databaseRawData.getMediumQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -460,12 +489,24 @@ public class PopupService extends Service {
 
     public void ReadHardQuest(){
 
-        /*String id = databaseRawData.getEasyQuestionDB().push().getKey();
-        Question ez = new Question("text", "The annual general meeting was in the conference centre", "Meo", "Cho", "Ga", "Vit");
-        databaseRawData.getEasyQuestionDB().child(id).setValue(ez);
-        id = databaseRawData.getEasyQuestionDB().push().getKey();
-        ez = new Question("text", "Cat la gi", "Meo", "Cho", "Ga", "Vit");
-        databaseRawData.getEasyQuestionDB().child(id).setValue(ez);*/
+        /*String id = databaseRawData.getHardQuestionDB().push().getKey();
+        //id = databaseRawData.getMediumQuestionDB().push().getKey();
+        Question ez = new Question("text", "",
+                "Sammy _____ his father to buy him a new mountain bike for Christmas.",
+                "", "implored", "consumed", "persisted", "demanded");
+        databaseRawData.getHardQuestionDB().child(id).setValue(ez);
+
+        id = databaseRawData.getHardQuestionDB().push().getKey();
+        ez = new Question("text", "",
+                "There was a time when the _____ person could not afford a mobile phone.",
+                "", "ordinary", "normal", "usual", "regular");
+        databaseRawData.getHardQuestionDB().child(id).setValue(ez);
+
+        id = databaseRawData.getHardQuestionDB().push().getKey();
+        ez = new Question("text", "",
+                "At the moment, the country has a number of _____ economic problems.",
+                "", "serious", "hard", "tricky", "difficult");
+        databaseRawData.getHardQuestionDB().child(id).setValue(ez);*/
 
         databaseRawData.getHardQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -487,6 +528,21 @@ public class PopupService extends Service {
                 }
                 //finish;
                 //popAHardQuestion();
+                boolean isOut;
+                isOut = popAEasyQuestion();
+
+                if (isOut){
+                    isOut = popAMediumQuestion();
+                    if (isOut){
+                        isOut = popAHardQuestion();
+                        if (isOut){
+                            //congratulation
+                            Question cur = new Question();
+                            cur.setType("Win");
+                            mQuestionChild.setQuestionData(cur);
+                        }
+                    }
+                }
 
                 //curQuestion here
             }
@@ -573,7 +629,7 @@ public class PopupService extends Service {
     }
 
     public boolean isInHistoryAnswerId(String id) {
-        if (historyAnswerId.indexOf(id) >= 0) return true;
+        if (historyAnswerId == null || historyAnswerId.indexOf(id) >= 0) return true;
         else return false;
     }
 

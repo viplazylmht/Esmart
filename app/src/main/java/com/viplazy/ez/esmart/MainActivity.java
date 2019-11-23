@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
     //private StorageReference storageRef;
 
     String email;
+    String userName;
 
     private ImageView image;
 
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
         email = getIntent().getStringExtra("email");
+        userName = getIntent().getStringExtra("name");
 
         toolbar = findViewById(R.id.app_tool_bar);
 
@@ -114,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
         ReadImage();
 
-        Add(email);
+        DisPlayName(userName);
 
         //UpdateUser();
 
@@ -123,10 +125,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //to test
-    public void Add(String s){
+    public void DisPlayName(String s){
         TextView title = toolbar.findViewById(R.id.user_name);
 
-        title.setText(title.getText() + s);
+        title.setText(s);
 
     }
 

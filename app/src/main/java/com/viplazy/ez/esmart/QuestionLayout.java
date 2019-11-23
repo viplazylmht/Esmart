@@ -1,6 +1,7 @@
 package com.viplazy.ez.esmart;
 
 import android.view.View;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -58,6 +59,10 @@ public class QuestionLayout {
 
         }
 
+        if (questionData.getType().equals("Win")){
+            questionTitle.setText("EXCELLENT YOU HAVE ANSWER ALL QUESTION!!");
+            //GridLayout grid =
+        }
     }
 
     public Question getQuestionData() {

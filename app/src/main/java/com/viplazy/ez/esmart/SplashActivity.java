@@ -94,6 +94,7 @@ public class SplashActivity extends AppCompatActivity {
             else{
                 Intent intent = new Intent(this, MainActivity.class);
                 intent.putExtra("email", mAuth.getCurrentUser().getEmail());
+                intent.putExtra("name",mAuth.getCurrentUser().getDisplayName());
                 this.startActivity(intent);
                 finish();
             }
