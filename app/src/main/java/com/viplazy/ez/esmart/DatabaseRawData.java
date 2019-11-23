@@ -26,6 +26,7 @@ public class DatabaseRawData implements Serializable {
     private ArrayList<Question> easyQuestions = new ArrayList<>();
     private ArrayList<Question> mediumQuestions = new ArrayList<>();
     private ArrayList<Question> hardQuestions = new ArrayList<>();
+
     private DatabaseReference userDB;
     public Question question = new Question();
     private User curUser;
@@ -114,6 +115,7 @@ public class DatabaseRawData implements Serializable {
     }
 
     public void setHardQuestions(ArrayList<Question> hardQuestions) {
+
         this.hardQuestions = hardQuestions;
     }
 
@@ -146,6 +148,7 @@ public class DatabaseRawData implements Serializable {
     }
 
     public void setEasyQuestions(ArrayList<Question> easyQuestions) {
+
         this.easyQuestions = easyQuestions;
     }
 

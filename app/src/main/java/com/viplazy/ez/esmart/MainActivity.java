@@ -63,7 +63,6 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.lang.annotation.Inherited;
 import java.net.URI;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -154,7 +153,6 @@ public class MainActivity extends AppCompatActivity {
         databaseRawData.getUserDB().keepSynced(true);
 
         ReadEasyQuest();
-
         ReadUser();
 
         //for storage
@@ -170,22 +168,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ReadUser(){
-        //String id = userDB.push().getKey();
-        if (mAuth!= null && mAuth.getCurrentUser() != null)
-        {
-        String id = mAuth.getCurrentUser().getEmail();
-        id = id.replace('.', ',');
+          //String id = userDB.push().getKey();
+          if (mAuth!= null && mAuth.getCurrentUser() != null)
+          {
+          String id = mAuth.getCurrentUser().getEmail();
+          id = id.replace('.', ',');
 
-        String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
+          String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
 
-        ArrayList<String> ids = new ArrayList<String>();
-        ids.add("11");
-        ids.add("45");
-        User a = new User(12, 2, 0.5f, ids);
-        //if (mAuth != null && mAuth.getCurrentUser() != null) {
-            databaseRawData.getUserDB().child(id).child(currentDate).setValue(a);
-        //}
-    }}
+          ArrayList<String> ids = new ArrayList<String>();
+          ids.add("11");
+          ids.add("45");
+          User a = new User(12, 2, 0.5f, ids);
+          //if (mAuth != null && mAuth.getCurrentUser() != null) {
+          databaseRawData.getUserDB().child(id).child(currentDate).setValue(a);
+          //}
+      }
+    }
 
     public void ReadEasyQuest(){
 
@@ -225,7 +224,39 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
+    }
 
+    public void ReadEasyQuest(){
+
+        /*String id = easyQuestionDB.push().getKey();
+
+        Questions ez = new Questions("1", "text", "Dog", "Meo", "Cho", "Ga", "Vit");
+
+        easyQuestionDB.child(id).setValue(ez);
+
+        id = easyQuestionDB.push().getKey();
+        ez = new Questions("2", "text", "Dog la gi", "Meo", "Cho", "Ga", "Vit");
+        easyQuestionDB.child(id).setValue(ez);*/
+            databaseRawData.getEasyQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                databaseRawData.getEasyQuestions().clear();
+
+                for (DataSnapshot dts : dataSnapshot.getChildren()) {
+                    databaseRawData.getEasyQuestions().add(dts.getKey());
+                }
+                databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION);
+                Question a = databaseRawData.question;
+                Add(a.getDetail());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
     //to test
     public void Add(String s){
         TextView title = toolbar.findViewById(R.id.user_name);
@@ -506,7 +537,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
-    //=====================================
 
     @Override
     protected void onDestroy() {
