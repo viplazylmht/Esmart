@@ -87,7 +87,7 @@ public class QuestionLayout {
             imageView.setBackgroundColor(Color.TRANSPARENT);
 
             new DownloadImage().execute(questionData.getPath());
-            
+
             //
             Random ra = new Random();
 
@@ -159,6 +159,10 @@ public class QuestionLayout {
 
 
 
+        if (questionData.getType().equals("Win")){
+            questionTitle.setText("EXCELLENT YOU HAVE ANSWER ALL QUESTION!!");
+            //GridLayout grid =
+        }
     }
 
     public Question getQuestionData() {

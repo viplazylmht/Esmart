@@ -75,9 +75,9 @@ public class MainActivity extends AppCompatActivity {
     //use for storage
     //private FirebaseStorage storage;
     //private StorageReference storageRef;
-    DatabaseReference userDB;
 
     String email;
+    String userName;
 
     private ImageView image;
 
@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
         email = getIntent().getStringExtra("email");
+        userName = getIntent().getStringExtra("name");
 
         toolbar = findViewById(R.id.app_tool_bar);
 
@@ -105,8 +106,8 @@ public class MainActivity extends AppCompatActivity {
         addControl();
 
         //ReadEasyQuest();
-        userDB = FirebaseDatabase.getInstance().getReference("User");
-        userDB.keepSynced(true);
+//        userDB = FirebaseDatabase.getInstance().getReference("User");
+//        userDB.keepSynced(true);
 
         //for storage
         //storage = FirebaseStorage.getInstance();
@@ -116,100 +117,19 @@ public class MainActivity extends AppCompatActivity {
 
         ReadImage();
 
-        Add(email);
+        DisPlayName(userName);
 
-        UpdateUser();
+        //UpdateUser();
 
         id = email;
         id = id.replace('.', ',');
     }
 
-    public void UpdateUser(){
-        try {
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            final String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-            String pointDate = "2019-11-18";
-            String id = email;
-            id = id.replace('.', ',');
-
-            //detect when to slip week
-            Date now = df.parse(currentDate);
-            Date point = df.parse(pointDate);
-
-            days = now.getTime() - point.getTime();
-            days /= (1000 * 60 *60 * 24);
-            //new week
-            if (days % 7 == 0){
-                userDB.child(id).child("Day").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        int numQuest = 0;
-                        int numRight = 0;
-                        String email;
-                        for (DataSnapshot dts : dataSnapshot.getChildren()) {
-                            numQuest += dts.getValue(User.class).getNumQuestAnswered();
-                            numRight += dts.getValue(User.class).getPercent() * numQuest;
-                        }
-                        //finish
-                        User a = new User(0, numQuest, 1.0f * numRight / numQuest, new ArrayList<String>());
-
-                        WriteNewUser(a, "Week");
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-            }
-
-            //new month
-            if (days % 30 == 0){
-                userDB.child(id).child("Week").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        int numQuest = 0;
-                        int numRight = 0;
-                        String email;
-                        for (DataSnapshot dts : dataSnapshot.getChildren()) {
-                            numQuest += dts.getValue(User.class).getNumQuestAnswered();
-                            numRight += dts.getValue(User.class).getPercent() * numQuest;
-                        }
-                        //finish
-                        User a = new User(0, numQuest, 1.0f * numRight / numQuest, new ArrayList<String>());
-
-                        WriteNewUser(a, "Month");
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-            }
-
-            ArrayList<String> ids = new ArrayList<String>();
-            ids.add("11");
-            ids.add("45");
-            User a = new User(12, 2, 0.5f, ids);
-
-            userDB.child(id).child("Day").child(currentDate).setValue(a);
-        }
-
-        catch (ParseException e) {
-
-        }
-    }
-
-    public void WriteNewUser(User a, String parent){
-        userDB.child(id).child(parent).child(days.toString()).setValue(a);
-    }
-
     //to test
-    public void Add(String s){
+    public void DisPlayName(String s){
         TextView title = toolbar.findViewById(R.id.user_name);
 
-        title.setText(title.getText() + s);
+        title.setText(s);
 
     }
 
@@ -297,8 +217,9 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE);
         }
         else {
-
             Intent serviceIntent = new Intent(this, PopupService.class);
+            serviceIntent.putExtra("email", email);
+
             startService(serviceIntent);
         }
 
