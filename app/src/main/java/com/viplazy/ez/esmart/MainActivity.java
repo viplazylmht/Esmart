@@ -28,22 +28,11 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -52,11 +41,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-
-import javax.xml.datatype.Duration;
 
 import static android.app.Notification.EXTRA_NOTIFICATION_ID;
 
@@ -89,8 +75,7 @@ public class MainActivity extends AppCompatActivity {
     //use for storage
     //private FirebaseStorage storage;
     //private StorageReference storageRef;
-
-    DatabaseRawData databaseRawData;
+    DatabaseReference userDB;
 
     String email;
 
@@ -101,8 +86,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -117,21 +100,13 @@ public class MainActivity extends AppCompatActivity {
 
         container = findViewById(R.id.container);
 
-        databaseRawData = new DatabaseRawData();
-
         createNotificationChannel();
 
         addControl();
 
-
-        //for get database
-        //databaseRawData.setEasyQuestionDB(new DatabaseReference(FirebaseDatabase.getInstance().getReference("Question/Medium")));
-        databaseRawData.getEasyQuestionDB().keepSynced(true);
-
-        //databaseRawData.setUserDB(FirebaseDatabase.getInstance().getReference("User"));
-        databaseRawData.getUserDB().keepSynced(true);
-
-        ReadEasyQuest();
+        //ReadEasyQuest();
+        userDB = FirebaseDatabase.getInstance().getReference("User");
+        userDB.keepSynced(true);
 
         //for storage
         //storage = FirebaseStorage.getInstance();
@@ -165,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
             days /= (1000 * 60 *60 * 24);
             //new week
             if (days % 7 == 0){
-                databaseRawData.getUserDB().child(id).child("Day").addValueEventListener(new ValueEventListener() {
+                userDB.child(id).child("Day").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         int numQuest = 0;
@@ -190,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
 
             //new month
             if (days % 30 == 0){
-                databaseRawData.getUserDB().child(id).child("Week").addValueEventListener(new ValueEventListener() {
+                userDB.child(id).child("Week").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         int numQuest = 0;
@@ -218,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
             ids.add("45");
             User a = new User(12, 2, 0.5f, ids);
 
-            databaseRawData.getUserDB().child(id).child("Day").child(currentDate).setValue(a);
+            userDB.child(id).child("Day").child(currentDate).setValue(a);
         }
 
         catch (ParseException e) {
@@ -227,54 +202,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void WriteNewUser(User a, String parent){
-        databaseRawData.getUserDB().child(id).child(parent).child(days.toString()).setValue(a);
+        userDB.child(id).child(parent).child(days.toString()).setValue(a);
     }
-
-    public void ReadEasyQuest(){
-
-        //String id = databaseRawData.getHardQuestionDB().push().getKey();
-        //Question ez = new Question("text", "Tribal differences in the country have created an _____ cycle of violence for years.", "endless", "intermittent", "effortless", "interminable");
-        //databaseRawData.getHardQuestionDB().child(id).setValue(ez);
-        /*id = databaseRawData.getHardQuestionDB().push().getKey();
-        ez = new Question("text", "Please _____ a copy of this payment slip for your files as you’ll need it later.", "retain", "refrain", "disdain", "contain");
-        databaseRawData.getHardQuestionDB().child(id).setValue(ez);
-        id = databaseRawData.getHardQuestionDB().push().getKey();
-        ez = new Question("text", "The lecturer _____ the class’s attention to an error in the calculations.", "drew", "attracted", "put", "showed");
-        databaseRawData.getHardQuestionDB().child(id).setValue(ez);*/
-
-        databaseRawData.getEasyQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                databaseRawData.getEasyQuestions().clear();
-
-                for (DataSnapshot dts : dataSnapshot.getChildren()) {
-                    Question result = new Question();
-                    result.setDetail(dts.getValue(Question.class).getDetail());
-                    result.setType(dts.getValue(Question.class).getType());
-                    result.setRA(dts.getValue(Question.class).getRA());
-                    result.setWA1(dts.getValue(Question.class).getWA1());
-                    result.setWA2(dts.getValue(Question.class).getWA2());
-                    result.setWA3(dts.getValue(Question.class).getWA3());
-
-                    databaseRawData.getEasyQuestions().add(result);
-                }
-                //finish();
-                if (databaseRawData.getEasyQuestions().size() != 0) {
-                    Add(databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION).getDetail());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
 
     //to test
     public void Add(String s){
-        TextView title = (TextView) toolbar.findViewById(R.id.user_name);
+        TextView title = toolbar.findViewById(R.id.user_name);
 
         title.setText(title.getText() + s);
 
@@ -454,6 +387,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE) {
+            showSnackbar(getResources().getString(R.string.permission_granted), 1000);
+        }
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+    }
     private void showSnackbar(String message, int duration)
     {
         // Create snackbar
