@@ -220,7 +220,7 @@ public class PopupService extends Service {
 
             try {
                 if (mQuestionChild.getSelectedView().getText().toString().equals(mQuestionChild.getQuestionData().getRA())) {
-                    msg("Correct!");
+                    //msg("Correct!");
                     addHistoryAnswerId(mQuestionChild.getQuestionData().getId());
                     writted = false;
                     UpdateUser(true);
@@ -228,7 +228,7 @@ public class PopupService extends Service {
 
                 }
                 else {
-                    msg("Wrong Answer!");
+                    //msg("Wrong Answer!");
                     writted = false;
                     UpdateUser(false);
                     showResult(false);

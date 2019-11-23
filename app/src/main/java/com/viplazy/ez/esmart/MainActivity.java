@@ -19,7 +19,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -30,21 +29,6 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-
-import static android.app.Notification.EXTRA_NOTIFICATION_ID;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -105,24 +89,12 @@ public class MainActivity extends AppCompatActivity {
 
         addControl();
 
-        //ReadEasyQuest();
-//        userDB = FirebaseDatabase.getInstance().getReference("User");
-//        userDB.keepSynced(true);
-
-        //for storage
-        //storage = FirebaseStorage.getInstance();
-        //storageRef = storage.getReference("images/");
-
-        FirebaseStorage a;
-
-        ReadImage();
-
         DisPlayName(userName);
-
-        //UpdateUser();
 
         id = email;
         id = id.replace('.', ',');
+
+        pushNotify();
     }
 
     //to test
@@ -131,28 +103,6 @@ public class MainActivity extends AppCompatActivity {
 
         title.setText(s);
 
-    }
-
-    public void ReadImage(){
-
-        /*StorageReference islandRef = storageRef.child("19627.jpg");
-
-        final long ONE_MEGABYTE = 1024 * 1024;
-        islandRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-                // Data for "images/island.jpg" is returns, use this as needed
-                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                image.setImageBitmap(bitmap);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle any errors
-            }
-        });*/
-
-        //image.setImageResource(R.drawable.notification_icon);
     }
 
     @Override
@@ -197,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
             }
             case PUSH_POPUP: {
                 pushPopup();
+                finish();
                 break;
             }
             case HO_TRO: {
@@ -210,7 +161,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void pushPopup() {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+        Intent intent = new Intent(getApplicationContext(), StartPopupActivitiy.class);
+        intent.putExtra("email", email);
+        startActivity(intent);
+
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
 
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                     Uri.parse("package:" + getPackageName()));
@@ -221,42 +176,26 @@ public class MainActivity extends AppCompatActivity {
             serviceIntent.putExtra("email", email);
 
             startService(serviceIntent);
-        }
-
-
-    }
-    private Intent getPopupIntent() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE);
-
-            return null;
-        }
-        else {
-            return new Intent(this, PopupService.class);
-        }
+        }*/
     }
 
     private void pushNotify() {
 
         // Create an explicit intent for an Activity in your app
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        Intent intent = new Intent(getApplicationContext(), StartPopupActivitiy.class);
+        intent.putExtra("email", email);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        Intent snoozeIntent = new Intent(this, MainActivity.class);
-        snoozeIntent.putExtra(EXTRA_NOTIFICATION_ID, PUSH_NOTIFY);
-        PendingIntent snoozePendingIntent =
-                PendingIntent.getActivity(this, 0, snoozeIntent, 0);
-
-        Intent popupIntent = getPopupIntent();
+        PendingIntent pendingIntent =PendingIntent.getActivity(
+                getApplicationContext(),
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
 
         NotificationCompat.Builder mBuilder;
 
-        if (popupIntent == null) {
-            mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+        mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                     .setSmallIcon(R.drawable.notification_icon)
                     .setContentTitle("Incoming notification")
                     .setContentText("This is a demo text that remind you to checkout ur achievements of last week")
@@ -266,25 +205,8 @@ public class MainActivity extends AppCompatActivity {
 
                     // Set the intent that will fire when the user taps the notification
                     .setContentIntent(pendingIntent)
-                    .addAction(R.drawable.ic_launcher_foreground, "OPEN APP", snoozePendingIntent)
-                    .setAutoCancel(true);
-        }
-        else {
-            mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setSmallIcon(R.drawable.notification_icon)
-                    .setContentTitle("Incoming notification")
-                    .setContentText("This is a demo text that remind you to checkout ur achievements of last week")
-                    .setStyle(new NotificationCompat.BigTextStyle()
-                            .bigText("This is a demo text that remind you to checkout ur achievements of last week"))
-                    .setPriority(NotificationCompat.PRIORITY_MAX)
-
-                    // Set the intent that will fire when the user taps the notification
-                    .setContentIntent(pendingIntent)
-                    .addAction(R.drawable.ic_launcher_foreground, "OPEN POPUP", PendingIntent.getActivity(this, 0, popupIntent, 0))
-                    .setAutoCancel(true);
-        }
-
-
+                    .addAction(R.drawable.ic_launcher_foreground, "OPEN POPUP", pendingIntent)
+                    .setAutoCancel(false);
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
 
@@ -322,16 +244,6 @@ public class MainActivity extends AppCompatActivity {
         // Create snackbar
         final Snackbar snackbar = Snackbar.make(container , message, duration);
 
-        // Set an action on it, and a handler
-
-        /*
-        snackbar.setAction("DISMISS", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                snackbar.dismiss();
-            }
-        });
-        */
         snackbar.show();
     }
     private void showSnackbarOpenAppSetting(String message, int duration)

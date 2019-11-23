@@ -45,13 +45,6 @@ public class SplashActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         signIn();
-
-    }
-
-    public void ShowLognInResult(){
-        if (mAuth != null && mAuth.getCurrentUser() != null) {
-            msg("Wellcome " + mAuth.getCurrentUser().getEmail());
-        }
     }
 
     // fast way to call Toast
@@ -105,13 +98,14 @@ public class SplashActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            msg("Wellcome " + mAuth.getCurrentUser().getEmail());
+                            //msg("Wellcome " + mAuth.getCurrentUser().getEmail());
                             FirebaseUser user = mAuth.getCurrentUser();
+                            msg("Wellcome " + mAuth.getCurrentUser().getDisplayName());
 
                         } else {
                             // If sign in fails, display a message to the user.
                             if (mAuth == null) {
-                                msg("Logn in failed");
+                                //msg("Logn in failed");
                             }
                         }
 
