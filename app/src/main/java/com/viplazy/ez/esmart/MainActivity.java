@@ -363,7 +363,7 @@ public class MainActivity extends AppCompatActivity {
         pager = findViewById(R.id.view_pager);
         tabLayout = findViewById(R.id.tab_layout);
         FragmentManager manager = getSupportFragmentManager();
-        PagerAdapter adapter = new PagerAdapter(manager);
+        PagerAdapter adapter = new PagerAdapter(manager, email);
         pager.setAdapter(adapter);
         tabLayout.setupWithViewPager(pager);
         pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
