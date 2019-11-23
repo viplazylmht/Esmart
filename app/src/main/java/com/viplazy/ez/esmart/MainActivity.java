@@ -30,6 +30,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -202,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void WriteNewUser(User a, String parent){
+
         userDB.child(id).child(parent).child(days.toString()).setValue(a);
     }
 
