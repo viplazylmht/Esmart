@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -62,12 +63,15 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.lang.annotation.Inherited;
 import java.net.URI;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.app.Notification.EXTRA_NOTIFICATION_ID;
 
@@ -150,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
         databaseRawData.getUserDB().keepSynced(true);
 
         ReadEasyQuest();
+
         ReadUser();
 
         //for storage
@@ -166,6 +171,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void ReadUser(){
         //String id = userDB.push().getKey();
+        if (mAuth!= null && mAuth.getCurrentUser() != null)
+        {
         String id = mAuth.getCurrentUser().getEmail();
         id = id.replace('.', ',');
 
@@ -178,39 +185,46 @@ public class MainActivity extends AppCompatActivity {
         //if (mAuth != null && mAuth.getCurrentUser() != null) {
             databaseRawData.getUserDB().child(id).child(currentDate).setValue(a);
         //}
-    }
+    }}
 
     public void ReadEasyQuest(){
 
-        /*String id = easyQuestionDB.push().getKey();
+        /*String id = databaseRawData.getEasyQuestionDB().push().getKey();
+        Question ez = new Question("text", "The annual general meeting was in the conference centre", "Meo", "Cho", "Ga", "Vit");
+        databaseRawData.getEasyQuestionDB().child(id).setValue(ez);
+        id = databaseRawData.getEasyQuestionDB().push().getKey();
+        ez = new Question("text", "Cat la gi", "Meo", "Cho", "Ga", "Vit");
+        databaseRawData.getEasyQuestionDB().child(id).setValue(ez);*/
 
-        Questions ez = new Questions("1", "text", "Dog", "Meo", "Cho", "Ga", "Vit");
-
-        easyQuestionDB.child(id).setValue(ez);
-
-        id = easyQuestionDB.push().getKey();
-        ez = new Questions("2", "text", "Dog la gi", "Meo", "Cho", "Ga", "Vit");
-        easyQuestionDB.child(id).setValue(ez);*/
             databaseRawData.getEasyQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                databaseRawData.getEasyQuestions().clear();
+                    databaseRawData.getEasyQuestions().clear();
 
-                for (DataSnapshot dts : dataSnapshot.getChildren()) {
-                    databaseRawData.getEasyQuestions().add(dts.getKey());
+                    for (DataSnapshot dts : dataSnapshot.getChildren()) {
+                        Question result = new Question();
+                        result.setDetail(dts.getValue(Question.class).getDetail());
+                        result.setType(dts.getValue(Question.class).getType());
+                        result.setRA(dts.getValue(Question.class).getRA());
+                        result.setWA1(dts.getValue(Question.class).getWA1());
+                        result.setWA2(dts.getValue(Question.class).getWA2());
+                        result.setWA3(dts.getValue(Question.class).getWA3());
+
+                        databaseRawData.getEasyQuestions().add(result);
+                    }
+                    //finish();
+                    if (databaseRawData.getEasyQuestions().size() != 0) {
+                        Add(databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION).getDetail());
+                    }
                 }
-                databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION);
-                Question a = databaseRawData.question;
-                Add(a.getDetail());
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
+        }
 
-    }
 
     //to test
     public void Add(String s){
@@ -425,13 +439,11 @@ public class MainActivity extends AppCompatActivity {
                 // ...
 
             }
-
-        }
-
-        //prevent from using without sign in
-        if (mAuth == null || mAuth.getCurrentUser() == null) {
-            signIn();
-            return;
+            //prevent from using without sign in
+            if (mAuth == null || mAuth.getCurrentUser() == null) {
+                signIn();
+                return;
+            }
         }
     }
     private void showSnackbar(String message, int duration)
