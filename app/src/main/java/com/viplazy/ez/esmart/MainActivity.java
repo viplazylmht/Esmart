@@ -45,6 +45,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 1;
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
+
 
     /*//use for firebase database
     private DatabaseReference easyQuestionDB;
@@ -166,18 +168,21 @@ public class MainActivity extends AppCompatActivity {
 
     public void ReadUser(){
         //String id = userDB.push().getKey();
-        String id = mAuth.getCurrentUser().getEmail();
-        id = id.replace('.', ',');
+        if (mAuth != null && mAuth.getCurrentUser() != null) {
+            String id = mAuth.getCurrentUser().getEmail();
 
-        String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
+            id = id.replace('.', ',');
 
-        ArrayList<String> ids = new ArrayList<String>();
-        ids.add("11");
-        ids.add("45");
-        User a = new User(12, 2, 0.5f, ids);
-        //if (mAuth != null && mAuth.getCurrentUser() != null) {
+            String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
+
+            ArrayList<String> ids = new ArrayList<String>();
+            ids.add("11");
+            ids.add("45");
+            User a = new User(12, 2, 0.5f, ids);
+            //if (mAuth != null && mAuth.getCurrentUser() != null) {
             databaseRawData.getUserDB().child(id).child(currentDate).setValue(a);
-        //}
+            //}
+        }
     }
 
     public void ReadEasyQuest(){
