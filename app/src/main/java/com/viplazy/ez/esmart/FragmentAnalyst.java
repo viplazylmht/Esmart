@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
@@ -18,8 +17,10 @@ public class FragmentAnalyst extends Fragment {
 
     private View layoutView;
 
-    public FragmentAnalyst() {
+    DatabaseRawData databaseRawData;
 
+    public FragmentAnalyst(DatabaseRawData dt) {
+        this.databaseRawData = dt;
     }
 
 

@@ -42,15 +42,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 
 import static android.app.Notification.EXTRA_NOTIFICATION_ID;
 
@@ -76,18 +68,6 @@ public class MainActivity extends AppCompatActivity {
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
 
-    /*//use for firebase database
-    private DatabaseReference easyQuestionDB;
-    private ArrayList<Questions> easyQuestions = new ArrayList<>();
-    private DatabaseReference userDB;
-    private User curUser;*/
-
-    //use for storage
-    //private FirebaseStorage storage;
-    //private StorageReference storageRef;
-
-    DatabaseRawData databaseRawData;
-
     private ImageView image;
 
 
@@ -108,8 +88,6 @@ public class MainActivity extends AppCompatActivity {
 
         container = findViewById(R.id.container);
 
-        databaseRawData = new DatabaseRawData();
-
         createNotificationChannel();
 
         addControl();
@@ -125,15 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
         signIn();
 
-        //for get database
-        //databaseRawData.setEasyQuestionDB(new DatabaseReference(FirebaseDatabase.getInstance().getReference("Question/Medium")));
-        databaseRawData.getEasyQuestionDB().keepSynced(true);
 
-        //databaseRawData.setUserDB(FirebaseDatabase.getInstance().getReference("User"));
-        databaseRawData.getUserDB().keepSynced(true);
-
-        ReadEasyQuest();
-        ReadUser();
 
         //for storage
         //storage = FirebaseStorage.getInstance();
@@ -147,62 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void ReadUser(){
-          //String id = userDB.push().getKey();
-          if (mAuth!= null && mAuth.getCurrentUser() != null)
-          {
-          String id = mAuth.getCurrentUser().getEmail();
-          id = id.replace('.', ',');
 
-          String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
-
-          ArrayList<String> ids = new ArrayList<String>();
-          ids.add("11");
-          ids.add("45");
-          User a = new User(12, 2, 0.5f, ids);
-          //if (mAuth != null && mAuth.getCurrentUser() != null) {
-          databaseRawData.getUserDB().child(id).child(currentDate).setValue(a);
-          //}
-      }
-    }
-
-    public void ReadEasyQuest(){
-
-        /*String id = databaseRawData.getEasyQuestionDB().push().getKey();
-        Question ez = new Question("text", "The annual general meeting was in the conference centre", "Meo", "Cho", "Ga", "Vit");
-        databaseRawData.getEasyQuestionDB().child(id).setValue(ez);
-        id = databaseRawData.getEasyQuestionDB().push().getKey();
-        ez = new Question("text", "Cat la gi", "Meo", "Cho", "Ga", "Vit");
-        databaseRawData.getEasyQuestionDB().child(id).setValue(ez);*/
-
-        databaseRawData.getEasyQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                databaseRawData.getEasyQuestions().clear();
-
-                for (DataSnapshot dts : dataSnapshot.getChildren()) {
-                    Question result = new Question();
-                    result.setDetail(dts.getValue(Question.class).getDetail());
-                    result.setType(dts.getValue(Question.class).getType());
-                    result.setRA(dts.getValue(Question.class).getRA());
-                    result.setWA1(dts.getValue(Question.class).getWA1());
-                    result.setWA2(dts.getValue(Question.class).getWA2());
-                    result.setWA3(dts.getValue(Question.class).getWA3());
-
-                    databaseRawData.getEasyQuestions().add(result);
-                }
-                //finish();
-                if (databaseRawData.getEasyQuestions().size() != 0) {
-                    Add(databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION).getDetail());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
 
 
     //to test
@@ -302,7 +217,6 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE);
         }
         else {
-
             Intent serviceIntent = new Intent(this, PopupService.class);
             startService(serviceIntent);
         }
@@ -495,7 +409,9 @@ public class MainActivity extends AppCompatActivity {
         pager = findViewById(R.id.view_pager);
         tabLayout = findViewById(R.id.tab_layout);
         FragmentManager manager = getSupportFragmentManager();
+
         PagerAdapter adapter = new PagerAdapter(manager);
+
         pager.setAdapter(adapter);
         tabLayout.setupWithViewPager(pager);
         pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));

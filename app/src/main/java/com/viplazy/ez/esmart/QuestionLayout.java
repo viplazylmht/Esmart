@@ -2,11 +2,11 @@ package com.viplazy.ez.esmart;
 
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class QuestionLayout {
 
@@ -18,8 +18,6 @@ public class QuestionLayout {
 
     private TextView questionTitle;
 
-    private RadioGroup radioGroupAnswer;
-
     private ArrayList<TextView> listAnswer;
 
     private TextView submit;
@@ -28,7 +26,51 @@ public class QuestionLayout {
 
     private ScrollView answer_filed;
 
-    int currentState;
+    private Question questionData;
+
+    private void showQuestionData() {
+        if (questionData.getType().equals("text")) {
+
+            questionTitle.setText(questionData.getDetail());
+            Random ra = new Random();
+
+            int i = ra.nextInt(4);
+
+            listAnswer.get(i).setText(questionData.getRA());
+
+            ArrayList<String> wrongAnswer = new ArrayList<>();
+
+            wrongAnswer.add(questionData.getWA1());
+            wrongAnswer.add(questionData.getWA2());
+            wrongAnswer.add(questionData.getWA3());
+
+            int k = 0, j = 0;
+            while (k< 4) {
+                if (k == i) {
+                    k++;
+                    continue;
+                }
+
+                listAnswer.get(k).setText(wrongAnswer.get(j));
+                k++;
+                j++;
+            }
+
+        }
+
+    }
+
+    public Question getQuestionData() {
+        return questionData;
+    }
+
+    public void setQuestionData(Question questionData) {
+        this.questionData = questionData;
+
+        showQuestionData();
+    }
+
+    private int currentState;
 
     public ScrollView getAnswer_filed() {
         return answer_filed;
@@ -85,14 +127,6 @@ public class QuestionLayout {
 
     public void setQuestionTitle(TextView questionTitle) {
         this.questionTitle = questionTitle;
-    }
-
-    public RadioGroup getRadioGroupAnswer() {
-        return radioGroupAnswer;
-    }
-
-    public void setRadioGroupAnswer(RadioGroup radioGroupAnswer) {
-        this.radioGroupAnswer = radioGroupAnswer;
     }
 
     public ArrayList<TextView> getListAnswer() {
@@ -180,4 +214,6 @@ public class QuestionLayout {
             }
         }
     }
+
+
 }
