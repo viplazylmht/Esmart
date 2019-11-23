@@ -13,25 +13,25 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class PopupService extends Service {
+
+    public static final int POPUP_MAIN = 1;
+    public static final int POPUP_QUESTION_LAYOUT = 2;
 
     private WindowManager mWindowManager;
 
     private View mPopupView;
 
-    private View mMainView, mListenView, mReadView, mSpeakView;
+    private RelativeLayout mQuestionView;
+
+    private QuestionLayout mQuestionChild;
 
     private TextView tv_title;
 
-    private LinearLayout mIncludeLayout;
-
     private Button btn_close;
 
-    public static final int POPUP_MAIN = 1;
-    public static final int POPUP_QUESTION_LISTEN = 2;
-    public static final int POPUP_QUESTION_READ = 3;
-    public static final int POPUP_QUESTION_SPEAK = 4;
 
     RelativeLayout container;
 
@@ -51,16 +51,12 @@ public class PopupService extends Service {
     public void onCreate() {
         super.onCreate();
 
-
         state = POPUP_MAIN;
-
 
         //Language language = new Language();
         //Inflate the chat head layout we created
 
         mPopupView = LayoutInflater.from(this).inflate(R.layout.popup_window, null);
-        mIncludeLayout = mPopupView.findViewById(R.id.include_layout_popup);
-
 
         container = mPopupView.findViewById(R.id.container);
 
@@ -100,81 +96,35 @@ public class PopupService extends Service {
             mWindowManager.addView(mPopupView, popup_params);
         }
 
-        mMainView = getIncludeLayout(POPUP_MAIN);
-        mListenView = getIncludeLayout(POPUP_QUESTION_LISTEN);
-        mSpeakView = getIncludeLayout(POPUP_QUESTION_SPEAK);
-        mReadView = getIncludeLayout(POPUP_QUESTION_READ);
+//        mQuestionView = getIncludeLayout(POPUP_QUESTION_LAYOUT);
 
+        mQuestionView = mPopupView.findViewById(R.id.question_field);
 
+        mQuestionChild = new QuestionLayout(mQuestionView);
 
-        mIncludeLayout.removeAllViews();
-
-        mIncludeLayout.addView(mMainView);
-
-
-        Button mainSwapButton = mMainView.findViewById(R.id.btn_swap);
-
-        mainSwapButton.setOnClickListener(new View.OnClickListener() {
+        mQuestionChild.getSubmit().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                state = POPUP_QUESTION_LISTEN;
-                mIncludeLayout.removeAllViews();
 
-                mIncludeLayout.addView(mListenView);
+                try {
+                    msg(mQuestionChild.getSelectedView().getText().toString());
+                }
+                catch (NullPointerException e) {
+                    //msg("Please choose the answer first!");
+                }
             }
         });
 
-        Button listenSwapButton = mListenView.findViewById(R.id.btn_swap);
+        final TextView tv_menu = mPopupView.findViewById(R.id.menu_profile_popup);
+        //tv_menu.setBackgroundColor(Color.TRANSPARENT);
 
-        listenSwapButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                state = POPUP_QUESTION_READ;
-                mIncludeLayout.removeAllViews();
-
-                mIncludeLayout.addView(mReadView);
-            }
-        });
-
-        Button readSwapButton = mReadView.findViewById(R.id.btn_swap);
-
-        readSwapButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                state = POPUP_QUESTION_SPEAK;
-                mIncludeLayout.removeAllViews();
-
-                mIncludeLayout.addView(mSpeakView);
-            }
-        });
-
-        Button speakSwapButton = mSpeakView.findViewById(R.id.btn_swap);
-
-        speakSwapButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                state = POPUP_MAIN;
-                mIncludeLayout.removeAllViews();
-
-                mIncludeLayout.addView(mMainView);
-            }
-        });
-
-
-        tv_title = mPopupView.findViewById(R.id.tv_popup_title);
-        btn_close = mPopupView.findViewById(R.id.btn_close_popup);
-
-        tv_title.setText("Hello world!");
-        tv_title.setTextColor(getResources().getColor(android.R.color.white));
-
-        btn_close.setOnClickListener(new View.OnClickListener() {
+        tv_menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 stopSelf();
             }
         });
     }
-
 
     @Override
     public void onDestroy() {
@@ -185,19 +135,31 @@ public class PopupService extends Service {
 
     View getIncludeLayout(int type) {
 
+        View v;
         switch (type) {
-            case  POPUP_QUESTION_LISTEN: {
-                return LayoutInflater.from(this).inflate(R.layout.popup_question_listen, null);
+            case  POPUP_QUESTION_LAYOUT: {
+                v = LayoutInflater.from(this).inflate(R.layout.popup_question_layout, null);
+                break;
             }
-            case  POPUP_QUESTION_READ: {
-                return LayoutInflater.from(this).inflate(R.layout.popup_question_read, null);
-            }
-            case  POPUP_QUESTION_SPEAK: {
-                return LayoutInflater.from(this).inflate(R.layout.popup_question_speak, null);
-            }
-
             case POPUP_MAIN:
-            default: return LayoutInflater.from(this).inflate(R.layout.popup_main, null);
+            default: v = LayoutInflater.from(this).inflate(R.layout.popup_main, null);
         }
+
+        LinearLayout.LayoutParams layoutParams =new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
+
+        v.setLayoutParams(layoutParams);
+
+        return v;
     }
+
+    // fast way to call Toast
+    private void msg(String s) {
+        Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
+    }
+
+    private void undoSelectLastView(View v) {
+
+    }
+
 }
