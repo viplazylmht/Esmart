@@ -98,15 +98,6 @@ app:layout_constraintTop_toTopOf="parent">
                         android:gravity="right"
                         android:paddingRight="20dp">
 
-                        <com.github.lzyzsd.circleprogress.ArcProgress
-                            android:id="@+id/arc_progress"
-                            android:layout_width="80dp"
-                            android:layout_height="80dp"
-                            app:arc_bottom_text=""
-                            app:arc_finished_color="#FFB33333"
-                            app:arc_progress="25"
-                            app:arc_text_size="25dp"
-                            app:arc_unfinished_color="#FF131313" />
 
                     </LinearLayout>
 
@@ -117,18 +108,28 @@ app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="200dp"
 
                 android:orientation="vertical">
 
-                <ScrollView
+                <HorizontalScrollView
                     android:id="@+id/day_chart"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:visibility="gone">
+                    android:layout_height="match_parent"
+                    android:visibility="visible"
+                    android:fillViewport="true"
+                    android:scrollbars="horizontal">
+
+                    <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/barChartDays"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="1dp"
+                    />
 
 
-                </ScrollView>
+
+                </HorizontalScrollView>
 
             </LinearLayout>
 
@@ -159,7 +160,7 @@ app:layout_constraintTop_toTopOf="parent">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="EVERY WEEK"
+                        android:text="WEEK"
                         android:textSize="25dp" />
 
                     <LinearLayout
@@ -187,16 +188,7 @@ app:layout_constraintTop_toTopOf="parent">
                         android:gravity="right"
                         android:paddingRight="20dp">
 
-                        <com.github.lzyzsd.circleprogress.ArcProgress
-                            android:id="@+id/arc_progress1"
-                            android:layout_width="80dp"
-                            android:layout_height="80dp"
-                            android:layout_marginLeft="50dp"
-                            app:arc_bottom_text=""
-                            app:arc_finished_color="#FFB33333"
-                            app:arc_progress="65"
-                            app:arc_text_size="25dp"
-                            app:arc_unfinished_color="#FF131313" />
+
 
                     </LinearLayout>
                 </LinearLayout>
@@ -206,17 +198,25 @@ app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="200dp"
                 android:orientation="vertical">
 
-                <ScrollView
+                <HorizontalScrollView
                     android:id="@+id/week_chart"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:visibility="gone">
+                    android:layout_height="match_parent"
+                    android:visibility="visible"
+                    android:fillViewport="true">
 
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/barChartWeeks"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="5dp"
+                        android:visibility="gone"
+                        />
 
-                </ScrollView>
+                </HorizontalScrollView>
 
             </LinearLayout>
         </LinearLayout>
@@ -248,7 +248,7 @@ app:layout_constraintTop_toTopOf="parent">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="EVERY MONTH"
+                        android:text="MONTH"
                         android:textSize="25dp" />
 
                     <LinearLayout
@@ -275,23 +275,34 @@ app:layout_constraintTop_toTopOf="parent">
                         android:layout_height="match_parent"
                         android:gravity="right"
                         android:paddingRight="20dp">
-
-                        <com.github.lzyzsd.circleprogress.ArcProgress
-                            android:id="@+id/arc_progress2"
-                            android:layout_width="80dp"
-                            android:layout_height="80dp"
-                            android:layout_marginLeft="50dp"
-                            app:arc_bottom_text=""
-                            app:arc_finished_color="#FFB33333"
-                            app:arc_progress="35"
-                            app:arc_text_size="25dp"
-                            app:arc_unfinished_color="#FF131313" />
                     </LinearLayout>
                 </LinearLayout>
 
 
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:orientation="vertical">
+
+                <HorizontalScrollView
+                    android:id="@+id/month_chart"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="visible"
+                    android:fillViewport="true">
+
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/barChartMonths"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="5dp"
+                        />
+
+                </HorizontalScrollView>
+
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -330,13 +341,6 @@ app:layout_constraintTop_toTopOf="parent">
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <ScrollView
-                android:id="@+id/month_chart"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:visibility="gone">
-
-            </ScrollView>
 
         </LinearLayout>
     </LinearLayout>
