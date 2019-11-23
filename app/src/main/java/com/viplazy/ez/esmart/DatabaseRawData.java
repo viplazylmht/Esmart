@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 
-public class DatabaseRawData implements Serializable {
+public class DatabaseRawData {
     public static final int EASY_QUESTION = 1;
     public static final int MEDIUM_QUESTION = 2;
     public static final int HARD_QUESTION = 3;
@@ -30,6 +31,7 @@ public class DatabaseRawData implements Serializable {
     private DatabaseReference userDB;
     public Question question = new Question();
     private User curUser;
+
 
     public Question getQuestion(int level){
         Random random = new Random();
@@ -60,6 +62,7 @@ public class DatabaseRawData implements Serializable {
                 Question result = new Question();
                 result.setDetail(dataSnapshot.getValue(Question.class).getDetail());
                 result.setType(dataSnapshot.getValue(Question.class).getType());
+                result.setId(dataSnapshot.getKey());
                 result.setRA(dataSnapshot.getValue(Question.class).getRA());
                 result.setWA1(dataSnapshot.getValue(Question.class).getWA1());
                 result.setWA2(dataSnapshot.getValue(Question.class).getWA2());
@@ -79,11 +82,14 @@ public class DatabaseRawData implements Serializable {
     private void AddQuestToQuest(Question a){
         String type = a.getType();
         String detail = a.getDetail();
+        String path = a.getPath();
+        String id = a.getId();
+
         String ra = a.getRA();
         String wa1 = a.getWA1();
         String wa2 = a.getWA2();
         String wa3 = a.getWA3();
-        question = new Question(type,detail,ra,wa1,wa2,wa3);
+        question = new Question(type, id, detail, path, ra, wa1, wa2, wa3);
     }
 
     public DatabaseReference getMediumQuestionDB() {
@@ -120,10 +126,19 @@ public class DatabaseRawData implements Serializable {
     }
 
     public DatabaseRawData() {
+        try {
+            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        }
+        catch (DatabaseException e){
+
+        }
 
         easyQuestionDB = FirebaseDatabase.getInstance().getReference("Question/Easy");
+        easyQuestionDB.keepSynced(true);
         mediumQuestionDB = FirebaseDatabase.getInstance().getReference("Question/Medium");
+        mediumQuestionDB.keepSynced(true);
         hardQuestionDB = FirebaseDatabase.getInstance().getReference("Question/Hard");
+        hardQuestionDB.keepSynced(true);
         userDB = FirebaseDatabase.getInstance().getReference("User");
     }
 
@@ -167,14 +182,4 @@ public class DatabaseRawData implements Serializable {
         this.curUser = curUser;
     }
 
-    @NonNull
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-    }
 }
