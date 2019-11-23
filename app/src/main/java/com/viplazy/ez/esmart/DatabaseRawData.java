@@ -120,7 +120,6 @@ public class DatabaseRawData implements Serializable {
     }
 
     public DatabaseRawData() {
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         easyQuestionDB = FirebaseDatabase.getInstance().getReference("Question/Easy");
         mediumQuestionDB = FirebaseDatabase.getInstance().getReference("Question/Medium");
