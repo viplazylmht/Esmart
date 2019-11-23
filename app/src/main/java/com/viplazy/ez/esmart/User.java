@@ -1,30 +1,52 @@
 package com.viplazy.ez.esmart;
 
-public class User {
-    private String name;
-    private String email;
+import java.util.ArrayList;
 
-    public User(String name, String email) {
-        this.name = name;
-        this.email = email;
+public class User {
+    private int rank;
+    private int numQuestAnswered;
+    private float percent;
+    private ArrayList<String> passQuestID;
+
+    public User(int rank, int numQuestAnswered, float percent, ArrayList<String> passQuestID) {
+        this.rank = rank;
+        this.numQuestAnswered = numQuestAnswered;
+        this.percent = percent;
+        this.passQuestID = passQuestID;
+    }
+
+    public int getNumQuestAnswered() {
+        return numQuestAnswered;
+    }
+
+    public void setNumQuestAnswered(int numQuestAnswered) {
+        this.numQuestAnswered = numQuestAnswered;
+    }
+
+    public float getPercent() {
+        return percent;
+    }
+
+    public void setPercent(float percent) {
+        this.percent = percent;
     }
 
     public User() {
     }
 
-    public String getName() {
-        return name;
+    public int getRank() {
+        return rank;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setRank(int rank) {
+        this.rank = rank;
     }
 
-    public String getEmail() {
-        return email;
+    public ArrayList<String> getPassQuestID() {
+        return passQuestID;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setPassQuestID(ArrayList<String> passQuestID) {
+        this.passQuestID = passQuestID;
     }
 }

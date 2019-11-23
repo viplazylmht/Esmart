@@ -26,6 +26,10 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
         return frag;
     }
 
+    public FragmentInfo getFragmentInfo() {
+        return new FragmentInfo();
+    }
+
     @Override
     public int getCount() {
         return 3;
