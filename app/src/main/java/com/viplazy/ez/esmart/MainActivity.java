@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -68,6 +69,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.app.Notification.EXTRA_NOTIFICATION_ID;
 
@@ -165,19 +168,62 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ReadUser(){
-        //String id = userDB.push().getKey();
-        String id = mAuth.getCurrentUser().getEmail();
-        id = id.replace('.', ',');
+          //String id = userDB.push().getKey();
+          if (mAuth!= null && mAuth.getCurrentUser() != null)
+          {
+          String id = mAuth.getCurrentUser().getEmail();
+          id = id.replace('.', ',');
 
-        String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
+          String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
 
-        ArrayList<String> ids = new ArrayList<String>();
-        ids.add("11");
-        ids.add("45");
-        User a = new User(12, 2, 0.5f, ids);
-        //if (mAuth != null && mAuth.getCurrentUser() != null) {
-            databaseRawData.getUserDB().child(id).child(currentDate).setValue(a);
-        //}
+          ArrayList<String> ids = new ArrayList<String>();
+          ids.add("11");
+          ids.add("45");
+          User a = new User(12, 2, 0.5f, ids);
+          //if (mAuth != null && mAuth.getCurrentUser() != null) {
+          databaseRawData.getUserDB().child(id).child(currentDate).setValue(a);
+          //}
+      }
+    }
+
+    public void ReadEasyQuest(){
+
+        /*String id = databaseRawData.getEasyQuestionDB().push().getKey();
+        Question ez = new Question("text", "The annual general meeting was in the conference centre", "Meo", "Cho", "Ga", "Vit");
+        databaseRawData.getEasyQuestionDB().child(id).setValue(ez);
+        id = databaseRawData.getEasyQuestionDB().push().getKey();
+        ez = new Question("text", "Cat la gi", "Meo", "Cho", "Ga", "Vit");
+        databaseRawData.getEasyQuestionDB().child(id).setValue(ez);*/
+
+            databaseRawData.getEasyQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    databaseRawData.getEasyQuestions().clear();
+
+                    for (DataSnapshot dts : dataSnapshot.getChildren()) {
+                        Question result = new Question();
+                        result.setDetail(dts.getValue(Question.class).getDetail());
+                        result.setType(dts.getValue(Question.class).getType());
+                        result.setRA(dts.getValue(Question.class).getRA());
+                        result.setWA1(dts.getValue(Question.class).getWA1());
+                        result.setWA2(dts.getValue(Question.class).getWA2());
+                        result.setWA3(dts.getValue(Question.class).getWA3());
+
+                        databaseRawData.getEasyQuestions().add(result);
+                    }
+                    //finish();
+                    if (databaseRawData.getEasyQuestions().size() != 0) {
+                        Add(databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION).getDetail());
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+
     }
 
     public void ReadEasyQuest(){
@@ -211,7 +257,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
     //to test
     public void Add(String s){
         TextView title = toolbar.findViewById(R.id.user_name);
@@ -425,13 +470,11 @@ public class MainActivity extends AppCompatActivity {
                 // ...
 
             }
-
-        }
-
-        //prevent from using without sign in
-        if (mAuth == null || mAuth.getCurrentUser() == null) {
-            signIn();
-            return;
+            //prevent from using without sign in
+            if (mAuth == null || mAuth.getCurrentUser() == null) {
+                signIn();
+                return;
+            }
         }
     }
     private void showSnackbar(String message, int duration)
@@ -494,7 +537,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
-    //=====================================
 
     @Override
     protected void onDestroy() {
