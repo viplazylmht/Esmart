@@ -328,10 +328,6 @@ public class PopupService extends Service {
                             databaseRawData.getUserDB().child(email).child("Week").removeValue();
                         }
                         //finish
-                        numQuest++;
-                        if (right){
-                            numRight++;
-                        }
                         User a = new User(0, numQuest, 1.0f * numRight / numQuest, new ArrayList<String>());
                         Long key = days / 30;
 

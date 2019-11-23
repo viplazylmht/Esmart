@@ -61,21 +61,21 @@ public class FragmentAchievement extends Fragment {
 
                 rankImage = layoutView.findViewById(R.id.rank_image);
 
-                if (value >= 0f && value <= 6.6f)  rankImage.setImageResource(R.drawable.ic_rank15_bronze3);
-                if (value >= 6.6f && value <= 13.3f)  rankImage.setImageResource(R.drawable.ic_rank14_bronze2);
-                if (value >= 13.3f && value <= 20f)  rankImage.setImageResource(R.drawable.ic_rank13_bronze1);
-                if (value >= 20f && value <= 26.6)  rankImage.setImageResource(R.drawable.ic_rank12_silver3);
-                if (value >= 26.6f && value <= 33.3f)  rankImage.setImageResource(R.drawable.ic_rank11_silver2);
-                if (value >= 33.3f && value <= 40f)  rankImage.setImageResource(R.drawable.ic_rank10_silver1);
-                if (value >= 40f && value <= 46.6f)  rankImage.setImageResource(R.drawable.ic_rank09_gold3);
-                if (value >= 46.6f && value <= 53.3f)  rankImage.setImageResource(R.drawable.ic_rank08_gold2);
-                if (value >= 53.3f && value <= 60f)  rankImage.setImageResource(R.drawable.ic_rank07_gold1);
-                if (value >= 60f && value <= 66.6f)  rankImage.setImageResource(R.drawable.ic_rank06_diamond3);
-                if (value >= 66.6f && value <= 73.3f)  rankImage.setImageResource(R.drawable.ic_rank05_diamond2);
-                if (value >= 73.3f && value <= 80f)  rankImage.setImageResource(R.drawable.ic_rank04_diamond1);
-                if (value >= 80f && value <= 86.6f)  rankImage.setImageResource(R.drawable.ic_rank03_master3);
-                if (value >= 86.6f && value <= 93.3f)  rankImage.setImageResource(R.drawable.ic_rank02_master2);
-                if (value >= 93.3f && value <= 100f)  rankImage.setImageResource(R.drawable.ic_rank01_master1);
+                if (value >= 0f    && value <= 6.6f ) rankImage.setImageResource(R.drawable.ic_rank15_bronze3);
+                if (value >= 6.6f  && value <= 13.3f) rankImage.setImageResource(R.drawable.ic_rank14_bronze2);
+                if (value >= 13.3f && value <= 20f  ) rankImage.setImageResource(R.drawable.ic_rank13_bronze1);
+                if (value >= 20f   && value <= 26.6f) rankImage.setImageResource(R.drawable.ic_rank12_silver3);
+                if (value >= 26.6f && value <= 33.3f) rankImage.setImageResource(R.drawable.ic_rank11_silver2);
+                if (value >= 33.3f && value <= 40f  ) rankImage.setImageResource(R.drawable.ic_rank10_silver1);
+                if (value >= 40f   && value <= 46.6f) rankImage.setImageResource(R.drawable.ic_rank09_gold3);
+                if (value >= 46.6f && value <= 53.3f) rankImage.setImageResource(R.drawable.ic_rank08_gold2);
+                if (value >= 53.3f && value <= 60f  ) rankImage.setImageResource(R.drawable.ic_rank07_gold1);
+                if (value >= 60f   && value <= 66.6f) rankImage.setImageResource(R.drawable.ic_rank06_diamond3);
+                if (value >= 66.6f && value <= 73.3f) rankImage.setImageResource(R.drawable.ic_rank05_diamond2);
+                if (value >= 73.3f && value <= 80f  ) rankImage.setImageResource(R.drawable.ic_rank04_diamond1);
+                if (value >= 80f   && value <= 86.6f) rankImage.setImageResource(R.drawable.ic_rank03_master3);
+                if (value >= 86.6f && value <= 93.3f) rankImage.setImageResource(R.drawable.ic_rank02_master2);
+                if (value >= 93.3f && value <= 100f ) rankImage.setImageResource(R.drawable.ic_rank01_master1);
 
             }
             @Override
