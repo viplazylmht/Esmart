@@ -1,29 +1,42 @@
 package com.viplazy.ez.esmart;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+
 public class PagerAdapter extends FragmentStatePagerAdapter {
 
-   // DatabaseRawData data;
+   String email;
 
     PagerAdapter(FragmentManager fragmentManager) {
         super(fragmentManager);
-     //   this.data = new DatabaseRawData();
+        //   this.data = new DatabaseRawData();
+        email = "";
     }
+    PagerAdapter(FragmentManager fragmentManager, String email) {
+        super(fragmentManager);
+        this.email = email;
+
+    }
+
     @Override
     public Fragment getItem(int position) {
         Fragment frag=null;
         switch (position){
             case 0:
-                frag = new FragmentAchievement();
+                frag = new FragmentAchievement(email);
                 break;
             case 1:
-                frag = new FragmentAnalyst();
-                break;
-            case 2:
-                frag = new FragmentInfo();
+                frag = new FragmentAnalyst(email);
                 break;
         }
         return frag;
@@ -35,13 +48,9 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
        // this.data = data;
     }
 
-    public FragmentInfo getFragmentInfo() {
-        return new FragmentInfo();
-    }
-
     @Override
     public int getCount() {
-        return 3;
+        return 2;
     }
     @Override
     public CharSequence getPageTitle(int position) {
@@ -52,9 +61,6 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
                 break;
             case 1:
                 title = "Analyst";
-                break;
-            case 2:
-                title = "Info";
                 break;
         }
         return title;

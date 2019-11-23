@@ -10,9 +10,5 @@ public class BarChart extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bar_chart);
-
-        FragmentAnalyst charts = new FragmentAnalyst();
-
-        getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, charts).commit();
     }
 }
