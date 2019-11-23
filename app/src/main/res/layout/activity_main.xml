@@ -7,21 +7,10 @@
     android:id="@+id/container"
     tools:context=".MainActivity">
 
+    <include android:layout_width="match_parent"
+        android:layout_height="wrap_content" layout="@layout/app_tool_bar"
+        android:id="@+id/app_tool_bar"/>
 
-    <include
-        android:id="@+id/app_tool_bar"
-        layout="@layout/app_tool_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/image"/>
-</LinearLayout>
     <View
         android:id="@+id/divider"
         android:layout_below="@id/app_tool_bar"

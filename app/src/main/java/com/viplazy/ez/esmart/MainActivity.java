@@ -5,11 +5,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -23,13 +20,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
@@ -39,8 +34,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
@@ -49,28 +42,15 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
-import java.io.File;
-import java.lang.annotation.Inherited;
-import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.app.Notification.EXTRA_NOTIFICATION_ID;
 
@@ -195,59 +175,26 @@ public class MainActivity extends AppCompatActivity {
         ez = new Question("text", "Cat la gi", "Meo", "Cho", "Ga", "Vit");
         databaseRawData.getEasyQuestionDB().child(id).setValue(ez);*/
 
-            databaseRawData.getEasyQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    databaseRawData.getEasyQuestions().clear();
-
-                    for (DataSnapshot dts : dataSnapshot.getChildren()) {
-                        Question result = new Question();
-                        result.setDetail(dts.getValue(Question.class).getDetail());
-                        result.setType(dts.getValue(Question.class).getType());
-                        result.setRA(dts.getValue(Question.class).getRA());
-                        result.setWA1(dts.getValue(Question.class).getWA1());
-                        result.setWA2(dts.getValue(Question.class).getWA2());
-                        result.setWA3(dts.getValue(Question.class).getWA3());
-
-                        databaseRawData.getEasyQuestions().add(result);
-                    }
-                    //finish();
-                    if (databaseRawData.getEasyQuestions().size() != 0) {
-                        Add(databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION).getDetail());
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
-        }
-
-    }
-
-    public void ReadEasyQuest(){
-
-        /*String id = easyQuestionDB.push().getKey();
-
-        Questions ez = new Questions("1", "text", "Dog", "Meo", "Cho", "Ga", "Vit");
-
-        easyQuestionDB.child(id).setValue(ez);
-
-        id = easyQuestionDB.push().getKey();
-        ez = new Questions("2", "text", "Dog la gi", "Meo", "Cho", "Ga", "Vit");
-        easyQuestionDB.child(id).setValue(ez);*/
-            databaseRawData.getEasyQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        databaseRawData.getEasyQuestionDB().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 databaseRawData.getEasyQuestions().clear();
 
                 for (DataSnapshot dts : dataSnapshot.getChildren()) {
-                    databaseRawData.getEasyQuestions().add(dts.getKey());
+                    Question result = new Question();
+                    result.setDetail(dts.getValue(Question.class).getDetail());
+                    result.setType(dts.getValue(Question.class).getType());
+                    result.setRA(dts.getValue(Question.class).getRA());
+                    result.setWA1(dts.getValue(Question.class).getWA1());
+                    result.setWA2(dts.getValue(Question.class).getWA2());
+                    result.setWA3(dts.getValue(Question.class).getWA3());
+
+                    databaseRawData.getEasyQuestions().add(result);
                 }
-                databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION);
-                Question a = databaseRawData.question;
-                Add(a.getDetail());
+                //finish();
+                if (databaseRawData.getEasyQuestions().size() != 0) {
+                    Add(databaseRawData.getQuestion(DatabaseRawData.EASY_QUESTION).getDetail());
+                }
             }
 
             @Override
@@ -255,8 +202,9 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
     }
+
+
     //to test
     public void Add(String s){
         TextView title = toolbar.findViewById(R.id.user_name);
