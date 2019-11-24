@@ -30,22 +30,6 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-
-import static android.app.Notification.EXTRA_NOTIFICATION_ID;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final int PUSH_NOTIFY = Menu.FIRST;
@@ -179,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = new Intent(getApplicationContext(), StartPopupActivitiy.class);
         intent.putExtra("email", email);
+        intent.putExtra("username", userName);
         startActivity(intent);
 
         /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
@@ -200,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
         // Create an explicit intent for an Activity in your app
         Intent intent = new Intent(getApplicationContext(), StartPopupActivitiy.class);
         intent.putExtra("email", email);
+        intent.putExtra("username", userName);
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP| Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent pendingIntent =PendingIntent.getActivity(

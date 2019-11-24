@@ -24,9 +24,9 @@
         android:layout_below="@id/divider"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:background="@color/tab_color"
+        android:background="#EE7269"
         app:tabTextColor="@android:color/tab_indicator_text"
-        app:tabSelectedTextColor="@color/tab_select">
+        app:tabSelectedTextColor="@android:color/white">
 
 
     </com.google.android.material.tabs.TabLayout>

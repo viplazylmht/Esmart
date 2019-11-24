@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/tab_color"
+    android:background="#EE7269"
     tools:showIn="@layout/activity_main">
 
     <LinearLayout
@@ -12,28 +12,23 @@
         android:layout_height="match_parent"
         android:gravity="center_vertical">
 
-        <ImageView
-            android:layout_width="@android:dimen/app_icon_size"
-            android:layout_height="@android:dimen/app_icon_size"
-            android:background="@drawable/notification_icon"/>
+
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
+            android:gravity="center"
             android:orientation="vertical">
 
             <TextView
+                android:textSize="18dp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
                 android:textColor="@color/black_name_color"
                 android:id="@+id/user_name"
                 android:text="user name"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ranking"/>
 
         </LinearLayout>
 

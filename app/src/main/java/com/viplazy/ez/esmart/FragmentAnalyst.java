@@ -3,20 +3,12 @@ package com.viplazy.ez.esmart;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.HorizontalScrollView;
-import android.widget.TextView;
-import java.util.List;
-import java.util.ArrayList;
-
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.github.lzyzsd.circleprogress.ArcProgress;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.BarData;
@@ -28,7 +20,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import static androidx.constraintlayout.widget.Constraints.TAG;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FragmentAnalyst extends Fragment {
 
@@ -77,6 +70,7 @@ public class FragmentAnalyst extends Fragment {
         dataRef.child(email).child("Day").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                barEntriesDay.clear();
                 Log.d("Getting Data", "Running2");
                 ArrayList<String> idPassed;
                 float value = 0;

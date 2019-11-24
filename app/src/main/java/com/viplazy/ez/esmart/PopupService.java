@@ -3,7 +3,6 @@ package com.viplazy.ez.esmart;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.Build;
@@ -25,11 +24,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
-import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -66,9 +63,10 @@ public class PopupService extends Service {
     Context context;
     private Question curQuestion;
 
-    private String email;
+    private String email, userName;
 
     private boolean writted = false;
+    private boolean isWritted = false;
 
     WindowManager.LayoutParams popup_params;
 
@@ -92,12 +90,21 @@ public class PopupService extends Service {
 
 
         email = intent.getStringExtra("email");
+        userName = intent.getStringExtra("username");
+
+        setPopupUserName(userName);
+
         id = email.replace('.',',');
         ReadUser();
 
         ReadEasyQuest();
         ReadMediumQuest();
         ReadHardQuest();
+    }
+
+    private void setPopupUserName(String userName) {
+        final TextView username_popup = mPopupView.findViewById(R.id.tv_username_popup);
+        username_popup.setText(userName);
     }
 
     @Override
@@ -115,6 +122,9 @@ public class PopupService extends Service {
         expandedView = mPopupView.findViewById(R.id.expanded_container);
 
         answer_filed = mPopupView.findViewById(R.id.answer_field);
+
+
+
 
         collapsedView.setVisibility(View.VISIBLE);
         expandedView.setVisibility(View.GONE);
@@ -221,10 +231,6 @@ public class PopupService extends Service {
             @Override
             public void onClick(View view) {
 
-            try {
-                //get curtime
-                String hour = new SimpleDateFormat("hh", Locale.getDefault()).format(new Date());
-                Integer realHour = Integer.parseInt(hour);
 
 
                 if (mQuestionChild.getSelectedView().getText().toString().equals(mQuestionChild.getQuestionData().getRA())) {
@@ -241,12 +247,12 @@ public class PopupService extends Service {
                     UpdateUser(false);
                     showResult(false);
                 }
+
+                mQuestionChild.getImageView().setImageResource(0);
+                //mQuestionChild.getImageView().setBackgroundColor(Color.TRANSPARENT);
                 mQuestionChild.setCurrentState(QuestionLayout.SELECTED_ITEM_NONE);
 
-            }
-            catch (NullPointerException e) {
-                //msg("Please choose the answer first!");
-            }
+
             }
         });
 
@@ -465,31 +471,36 @@ public class PopupService extends Service {
                     }
                 });
             //}
-            databaseRawData.getUserDB().child(email).child("Day").child(currentDate).addValueEventListener(new ValueEventListener() {
+
+            isWritted = false;
+            databaseRawData.getUserDB().child(email).child("Day").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     int numQuest = 0;
                     int numRight = 0;
                     ArrayList<String> idPassed = new ArrayList<String>();
                     String email;
-                    //for (DataSnapshot dts : dataSnapshot.getChildren()) {
-                        numQuest += dataSnapshot.getValue(User.class).getNumQuestAnswered();
-                        numRight += dataSnapshot.getValue(User.class).getPercent() * numQuest;
-                        idPassed = dataSnapshot.getValue(User.class).getPassQuestID();
-                    //}
+                    for (DataSnapshot dts : dataSnapshot.getChildren()) {
+                        if (dts.getKey().equals(currentDate)) {
+                            numQuest += dts.getValue(User.class).getNumQuestAnswered();
+                            numRight += dts.getValue(User.class).getPercent() * numQuest;
+                        }
+                        idPassed = dts.getValue(User.class).getPassQuestID();
+
+                    }
                     //finish
                     numQuest++;
                     if (right) {
                         numRight++;
-                        if (idPassed.indexOf(historyAnswerId.get(historyAnswerId.size() - 1)) < 0) {
+                        if (historyAnswerId != null && idPassed != null && idPassed.indexOf(historyAnswerId.get(historyAnswerId.size() - 1)) < 0) {
                             idPassed.add(historyAnswerId.get(historyAnswerId.size() - 1));
                         }
                     }
                     if (idPassed != null) {
                         User a = new User(0, numQuest, 1.0f * numRight / numQuest, idPassed);
 
-                        writted = false;
-                        WriteNewUser(a, "Day", currentDate);
+                        WriteUser(a, "Day", currentDate);
+                        return;
                     }
                 }
 
@@ -514,6 +525,13 @@ public class PopupService extends Service {
         if (!writted) {
             databaseRawData.getUserDB().child(email).child(parent).child(key).setValue(a);
             writted = true;
+        }
+    }
+
+    public void WriteUser(User a, String parent, String key){
+        if (!isWritted) {
+            databaseRawData.getUserDB().child(email).child(parent).child(key).setValue(a);
+            isWritted = true;
         }
     }
 
@@ -758,7 +776,13 @@ public class PopupService extends Service {
     }
 
     public void addHistoryAnswerId(String nextID) {
-        if (!isInHistoryAnswerId(nextID)) historyAnswerId.add(nextID);
+        if (!isInHistoryAnswerId(nextID))
+
+            if (historyAnswerId == null) {
+                historyAnswerId = new ArrayList<>();
+            }
+
+            historyAnswerId.add(nextID);
     }
 
 

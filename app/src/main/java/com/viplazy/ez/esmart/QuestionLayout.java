@@ -3,6 +3,7 @@ package com.viplazy.ez.esmart;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -81,9 +82,9 @@ public class QuestionLayout {
 
             questionTitle.setText(questionData.getDetail());
 
+            imageView.setBackgroundColor(Color.TRANSPARENT);
             imageView.setVisibility(View.VISIBLE);
 
-            //imageView.setBackgroundColor(Color.TRANSPARENT);
 
             new DownloadImage().execute(questionData.getPath());
 
@@ -118,9 +119,9 @@ public class QuestionLayout {
 
             questionTitle.setText(questionData.getDetail());
 
+            imageView.setBackgroundResource(R.drawable.ic_speaker);
             imageView.setVisibility(View.VISIBLE);
 
-            imageView.setBackgroundResource(R.drawable.ic_speaker);
 
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override

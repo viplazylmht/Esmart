@@ -13,7 +13,7 @@ public class StartPopupActivitiy extends AppCompatActivity {
     public static String TRANSFER_CALENDAR_KEY_2 = "key_calendar2";
     public static String TRANSFER_CALENDAR_KEY_3 = "key_calendar3";
 
-    String email;
+    String email, userName;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,8 +21,10 @@ public class StartPopupActivitiy extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
 
-        if (extras!=null)
+        if (extras!=null) {
             email = extras.getString("email");
+            userName = extras.getString("username");
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
 
@@ -35,6 +37,7 @@ public class StartPopupActivitiy extends AppCompatActivity {
             Intent serviceIntent = new Intent(this, PopupService.class);
 
             serviceIntent.putExtra("email", email);
+            serviceIntent.putExtra("username", userName);
 
             startService(serviceIntent);
 
